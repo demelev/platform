@@ -30,6 +30,7 @@ func Must(sc StoreChannel) interface{} {
 type Store interface {
 	Team() TeamStore
 	Channel() ChannelStore
+	Project() ProjectStore
 	Post() PostStore
 	User() UserStore
 	Audit() AuditStore
@@ -103,6 +104,13 @@ type ChannelStore interface {
 	IncrementMentionCount(channelId string, userId string) StoreChannel
 	AnalyticsTypeCount(teamId string, channelType string) StoreChannel
 	ExtraUpdateByUser(userId string, time int64) StoreChannel
+}
+
+type ProjectStore interface {
+	Save(post *model.Project) StoreChannel
+	Update(post *model.Project, newMessage string, newHashtags string) StoreChannel
+	Get(id string) StoreChannel
+	Delete(projectId string, time int64) StoreChannel
 }
 
 type PostStore interface {

@@ -40,6 +40,7 @@ type SqlStore struct {
 	replicas      []*gorp.DbMap
 	team          TeamStore
 	channel       ChannelStore
+	project       ProjectStore
 	post          PostStore
 	user          UserStore
 	audit         AuditStore
@@ -117,6 +118,7 @@ func NewSqlStore() Store {
 
 	sqlStore.team = NewSqlTeamStore(sqlStore)
 	sqlStore.channel = NewSqlChannelStore(sqlStore)
+	sqlStore.project = NewSqlProjectStore(sqlStore)
 	sqlStore.post = NewSqlPostStore(sqlStore)
 	sqlStore.user = NewSqlUserStore(sqlStore)
 	sqlStore.audit = NewSqlAuditStore(sqlStore)
