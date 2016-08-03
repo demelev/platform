@@ -108,7 +108,7 @@ type ChannelStore interface {
 
 type ProjectStore interface {
 	Save(post *model.Project) StoreChannel
-	Update(post *model.Project, newMessage string, newHashtags string) StoreChannel
+	Update(post *model.Project) StoreChannel
 	Get(id string) StoreChannel
 	Delete(projectId string, time int64) StoreChannel
 }

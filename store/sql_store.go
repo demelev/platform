@@ -650,6 +650,10 @@ func (ss SqlStore) Channel() ChannelStore {
 	return ss.channel
 }
 
+func (ss SqlStore) Project() ProjectStore {
+	return ss.project
+}
+
 func (ss SqlStore) Post() PostStore {
 	return ss.post
 }

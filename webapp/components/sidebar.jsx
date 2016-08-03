@@ -796,7 +796,7 @@ export default class Sidebar extends React.Component {
                                 {createPublicChannelIcon}
                             </h4>
                         </li>
-                        {projectChannelItems}
+                        {publicChannelItems}
                         <li>
                             <a
                                 href='#'

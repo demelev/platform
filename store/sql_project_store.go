@@ -4,7 +4,7 @@
 package store
 
 import (
-	"database/sql"
+	//"database/sql"
 	"github.com/go-gorp/gorp"
 	"github.com/mattermost/platform/model"
 	"github.com/mattermost/platform/utils"
@@ -66,7 +66,7 @@ func (s SqlProjectStore) Save(project *model.Project) StoreChannel {
 		//if transaction, err := s.GetMaster().Begin(); err != nil {
 		//result.Err = model.NewLocAppError("SqlProjectStore.Save", "store.sql_project.save.open_transaction.app_error", nil, err.Error())
 		//} else {
-		result = s.saveProjectT(transaction, project)
+		//result = s.saveProjectT(transaction, project)
 		//if result.Err != nil {
 		//transaction.Rollback()
 		//} else {
@@ -107,22 +107,22 @@ func (s SqlProjectStore) saveProjectT(transaction *gorp.Transaction, project *mo
 	//}
 	//}
 
-	if err := transaction.Insert(project); err != nil {
-		if IsUniqueConstraintError(err.Error(), []string{"Name", "projects_name_teamid_key"}) {
-			dupProject := model.Project{}
-			s.GetMaster().SelectOne(&dupProject, "SELECT * FROM Projects WHERE TeamId = :TeamId AND Name = :Name AND DeleteAt > 0", map[string]interface{}{"TeamId": project.TeamId, "Name": project.Name})
-			if dupProject.DeleteAt > 0 {
-				result.Err = model.NewLocAppError("SqlProjectStore.Save", "store.sql_project.save_project.previously.app_error", nil, "id="+project.Id+", "+err.Error())
-			} else {
-				result.Err = model.NewLocAppError("SqlProjectStore.Save", project_EXISTS_ERROR, nil, "id="+project.Id+", "+err.Error())
-				result.Data = &dupProject
-			}
-		} else {
-			result.Err = model.NewLocAppError("SqlProjectStore.Save", "store.sql_project.save_project.save.app_error", nil, "id="+project.Id+", "+err.Error())
-		}
-	} else {
-		result.Data = project
-	}
+	//if err := transaction.Insert(project); err != nil {
+	//if IsUniqueConstraintError(err.Error(), []string{"Name", "projects_name_teamid_key"}) {
+	//dupProject := model.Project{}
+	//s.GetMaster().SelectOne(&dupProject, "SELECT * FROM Projects WHERE TeamId = :TeamId AND Name = :Name AND DeleteAt > 0", map[string]interface{}{"TeamId": project.TeamId, "Name": project.Name})
+	//if dupProject.DeleteAt > 0 {
+	//result.Err = model.NewLocAppError("SqlProjectStore.Save", "store.sql_project.save_project.previously.app_error", nil, "id="+project.Id+", "+err.Error())
+	//} else {
+	//result.Err = model.NewLocAppError("SqlProjectStore.Save", project_EXISTS_ERROR, nil, "id="+project.Id+", "+err.Error())
+	//result.Data = &dupProject
+	//}
+	//} else {
+	//result.Err = model.NewLocAppError("SqlProjectStore.Save", "store.sql_project.save_project.save.app_error", nil, "id="+project.Id+", "+err.Error())
+	//}
+	//} else {
+	//result.Data = project
+	//}
 
 	return result
 }
@@ -281,25 +281,27 @@ func (s SqlProjectStore) GetProjects(teamId string, userId string) StoreChannel 
 	go func() {
 		result := StoreResult{}
 
-		var data []projectWithMember
-		_, err := s.GetReplica().Select(&data, "SELECT * FROM Projects, ProjectMembers WHERE Id = ProjectId AND UserId = :UserId AND DeleteAt = 0 AND (TeamId = :TeamId OR TeamId = '') ORDER BY DisplayName", map[string]interface{}{"TeamId": teamId, "UserId": userId})
-
-		if err != nil {
-			result.Err = model.NewLocAppError("SqlProjectStore.GetProjects", "store.sql_project.get_projects.get.app_error", nil, "teamId="+teamId+", userId="+userId+", err="+err.Error())
-		} else {
-			projects := &model.ProjectList{make([]*model.Project, len(data)), make(map[string]*model.ProjectMember)}
-			for i := range data {
-				v := data[i]
-				projects.Projects[i] = &v.Project
-				projects.Members[v.Project.Id] = &v.ProjectMember
-			}
-
-			if len(projects.Projects) == 0 {
-				result.Err = model.NewLocAppError("SqlProjectStore.GetProjects", "store.sql_project.get_projects.not_found.app_error", nil, "teamId="+teamId+", userId="+userId)
-			} else {
-				result.Data = projects
-			}
-		}
+		/*
+		 *        var data []projectWithMember
+		 *        _, err := s.GetReplica().Select(&data, "SELECT * FROM Projects, ProjectMembers WHERE Id = ProjectId AND UserId = :UserId AND DeleteAt = 0 AND (TeamId = :TeamId OR TeamId = '') ORDER BY DisplayName", map[string]interface{}{"TeamId": teamId, "UserId": userId})
+		 *
+		 *        if err != nil {
+		 *            result.Err = model.NewLocAppError("SqlProjectStore.GetProjects", "store.sql_project.get_projects.get.app_error", nil, "teamId="+teamId+", userId="+userId+", err="+err.Error())
+		 *        } else {
+		 *            projects := &model.ProjectList{make([]*model.Project, len(data)), make(map[string]*model.ProjectMember)}
+		 *            for i := range data {
+		 *                v := data[i]
+		 *                projects.Projects[i] = &v.Project
+		 *                projects.Members[v.Project.Id] = &v.ProjectMember
+		 *            }
+		 *
+		 *            if len(projects.Projects) == 0 {
+		 *                result.Err = model.NewLocAppError("SqlProjectStore.GetProjects", "store.sql_project.get_projects.not_found.app_error", nil, "teamId="+teamId+", userId="+userId)
+		 *            } else {
+		 *                result.Data = projects
+		 *            }
+		 *        }
+		 */
 
 		storeProject <- result
 		close(storeProject)
@@ -314,34 +316,36 @@ func (s SqlProjectStore) GetMoreProjects(teamId string, userId string) StoreChan
 	go func() {
 		result := StoreResult{}
 
-		var data []*model.Project
-		_, err := s.GetReplica().Select(&data,
-			`SELECT 
-			    *
-			FROM
-			    Projects
-			WHERE
-			    TeamId = :TeamId1
-					AND Type IN ('O')
-					AND DeleteAt = 0
-			        AND Id NOT IN (SELECT 
-			            Projects.Id
-			        FROM
-			            Projects,
-			            ProjectMembers
-			        WHERE
-			            Id = ProjectId
-			                AND TeamId = :TeamId2
-			                AND UserId = :UserId
-			                AND DeleteAt = 0)
-			ORDER BY DisplayName`,
-			map[string]interface{}{"TeamId1": teamId, "TeamId2": teamId, "UserId": userId})
-
-		if err != nil {
-			result.Err = model.NewLocAppError("SqlProjectStore.GetMoreProjects", "store.sql_project.get_more_projects.get.app_error", nil, "teamId="+teamId+", userId="+userId+", err="+err.Error())
-		} else {
-			result.Data = &model.ProjectList{data, make(map[string]*model.ProjectMember)}
-		}
+		/*
+		 *        var data []*model.Project
+		 *        _, err := s.GetReplica().Select(&data,
+		 *            `SELECT
+		 *                *
+		 *            FROM
+		 *                Projects
+		 *            WHERE
+		 *                TeamId = :TeamId1
+		 *                    AND Type IN ('O')
+		 *                    AND DeleteAt = 0
+		 *                    AND Id NOT IN (SELECT
+		 *                        Projects.Id
+		 *                    FROM
+		 *                        Projects,
+		 *                        ProjectMembers
+		 *                    WHERE
+		 *                        Id = ProjectId
+		 *                            AND TeamId = :TeamId2
+		 *                            AND UserId = :UserId
+		 *                            AND DeleteAt = 0)
+		 *            ORDER BY DisplayName`,
+		 *            map[string]interface{}{"TeamId1": teamId, "TeamId2": teamId, "UserId": userId})
+		 *
+		 *        if err != nil {
+		 *            result.Err = model.NewLocAppError("SqlProjectStore.GetMoreProjects", "store.sql_project.get_more_projects.get.app_error", nil, "teamId="+teamId+", userId="+userId+", err="+err.Error())
+		 *        } else {
+		 *            result.Data = &model.ProjectList{data, make(map[string]*model.ProjectMember)}
+		 *        }
+		 */
 
 		storeProject <- result
 		close(storeProject)
@@ -362,21 +366,23 @@ func (s SqlProjectStore) GetProjectCounts(teamId string, userId string) StoreCha
 	go func() {
 		result := StoreResult{}
 
-		var data []projectIdWithCountAndUpdateAt
-		_, err := s.GetReplica().Select(&data, "SELECT Id, TotalMsgCount, UpdateAt FROM Projects WHERE Id IN (SELECT ProjectId FROM ProjectMembers WHERE UserId = :UserId) AND (TeamId = :TeamId OR TeamId = '') AND DeleteAt = 0 ORDER BY DisplayName", map[string]interface{}{"TeamId": teamId, "UserId": userId})
-
-		if err != nil {
-			result.Err = model.NewLocAppError("SqlProjectStore.GetProjectCounts", "store.sql_project.get_project_counts.get.app_error", nil, "teamId="+teamId+", userId="+userId+", err="+err.Error())
-		} else {
-			counts := &model.ProjectCounts{Counts: make(map[string]int64), UpdateTimes: make(map[string]int64)}
-			for i := range data {
-				v := data[i]
-				counts.Counts[v.Id] = v.TotalMsgCount
-				counts.UpdateTimes[v.Id] = v.UpdateAt
-			}
-
-			result.Data = counts
-		}
+		/*
+		 *        var data []projectIdWithCountAndUpdateAt
+		 *        _, err := s.GetReplica().Select(&data, "SELECT Id, TotalMsgCount, UpdateAt FROM Projects WHERE Id IN (SELECT ProjectId FROM ProjectMembers WHERE UserId = :UserId) AND (TeamId = :TeamId OR TeamId = '') AND DeleteAt = 0 ORDER BY DisplayName", map[string]interface{}{"TeamId": teamId, "UserId": userId})
+		 *
+		 *        if err != nil {
+		 *            result.Err = model.NewLocAppError("SqlProjectStore.GetProjectCounts", "store.sql_project.get_project_counts.get.app_error", nil, "teamId="+teamId+", userId="+userId+", err="+err.Error())
+		 *        } else {
+		 *            counts := &model.ProjectCounts{Counts: make(map[string]int64), UpdateTimes: make(map[string]int64)}
+		 *            for i := range data {
+		 *                v := data[i]
+		 *                counts.Counts[v.Id] = v.TotalMsgCount
+		 *                counts.UpdateTimes[v.Id] = v.UpdateAt
+		 *            }
+		 *
+		 *            result.Data = counts
+		 *        }
+		 */
 
 		storeProject <- result
 		close(storeProject)
@@ -391,17 +397,19 @@ func (s SqlProjectStore) GetByName(teamId string, name string) StoreChannel {
 	go func() {
 		result := StoreResult{}
 
-		project := model.Project{}
+		//project := model.Project{}
 
-		if err := s.GetReplica().SelectOne(&project, "SELECT * FROM Projects WHERE (TeamId = :TeamId OR TeamId = '') AND Name = :Name AND DeleteAt = 0", map[string]interface{}{"TeamId": teamId, "Name": name}); err != nil {
-			if err == sql.ErrNoRows {
-				result.Err = model.NewLocAppError("SqlProjectStore.GetByName", MISSING_project_ERROR, nil, "teamId="+teamId+", "+"name="+name+", "+err.Error())
-			} else {
-				result.Err = model.NewLocAppError("SqlProjectStore.GetByName", "store.sql_project.get_by_name.existing.app_error", nil, "teamId="+teamId+", "+"name="+name+", "+err.Error())
-			}
-		} else {
-			result.Data = &project
-		}
+		/*
+		 *if err := s.GetReplica().SelectOne(&project, "SELECT * FROM Projects WHERE (TeamId = :TeamId OR TeamId = '') AND Name = :Name AND DeleteAt = 0", map[string]interface{}{"TeamId": teamId, "Name": name}); err != nil {
+		 *    if err == sql.ErrNoRows {
+		 *        result.Err = model.NewLocAppError("SqlProjectStore.GetByName", MISSING_project_ERROR, nil, "teamId="+teamId+", "+"name="+name+", "+err.Error())
+		 *    } else {
+		 *        result.Err = model.NewLocAppError("SqlProjectStore.GetByName", "store.sql_project.get_by_name.existing.app_error", nil, "teamId="+teamId+", "+"name="+name+", "+err.Error())
+		 *    }
+		 *} else {
+		 *    result.Data = &project
+		 *}
+		 */
 
 		storeProject <- result
 		close(storeProject)
@@ -522,17 +530,19 @@ func (s SqlProjectStore) GetMember(projectId string, userId string) StoreChannel
 	go func() {
 		result := StoreResult{}
 
-		var member model.ProjectMember
+		//var member model.ProjectMember
 
-		if err := s.GetReplica().SelectOne(&member, "SELECT * FROM ProjectMembers WHERE ProjectId = :ProjectId AND UserId = :UserId", map[string]interface{}{"ProjectId": projectId, "UserId": userId}); err != nil {
-			if err == sql.ErrNoRows {
-				result.Err = model.NewLocAppError("SqlProjectStore.GetMember", MISSING_project_MEMBER_ERROR, nil, "project_id="+projectId+"user_id="+userId+","+err.Error())
-			} else {
-				result.Err = model.NewLocAppError("SqlProjectStore.GetMember", "store.sql_project.get_member.app_error", nil, "project_id="+projectId+"user_id="+userId+","+err.Error())
-			}
-		} else {
-			result.Data = member
-		}
+		/*
+		 *if err := s.GetReplica().SelectOne(&member, "SELECT * FROM ProjectMembers WHERE ProjectId = :ProjectId AND UserId = :UserId", map[string]interface{}{"ProjectId": projectId, "UserId": userId}); err != nil {
+		 *    if err == sql.ErrNoRows {
+		 *        result.Err = model.NewLocAppError("SqlProjectStore.GetMember", MISSING_project_MEMBER_ERROR, nil, "project_id="+projectId+"user_id="+userId+","+err.Error())
+		 *    } else {
+		 *        result.Err = model.NewLocAppError("SqlProjectStore.GetMember", "store.sql_project.get_member.app_error", nil, "project_id="+projectId+"user_id="+userId+","+err.Error())
+		 *    }
+		 *} else {
+		 *    result.Data = member
+		 *}
+		 */
 
 		storeProject <- result
 		close(storeProject)
