@@ -96,7 +96,7 @@ export default class Sidebar extends React.Component {
 
         const publicChannels = channels.filter((channel) => channel.type === Constants.OPEN_CHANNEL);
         const privateChannels = channels.filter((channel) => channel.type === Constants.PRIVATE_CHANNEL);
-        //const projectsList    = ProjectStare.getAll();
+        const projectsList    = ProjectStore.getAll();
 
         const preferences = PreferenceStore.getCategory(Constants.Preferences.CATEGORY_DIRECT_CHANNEL_SHOW);
 
@@ -796,7 +796,7 @@ export default class Sidebar extends React.Component {
                                 {createPublicChannelIcon}
                             </h4>
                         </li>
-                        {publicChannelItems}
+                        {projectChannelItems}
                         <li>
                             <a
                                 href='#'

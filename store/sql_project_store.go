@@ -29,9 +29,8 @@ func NewSqlProjectStore(sqlStore *SqlStore) ProjectStore {
 		table.ColMap("Type").SetMaxSize(1)
 		table.ColMap("DisplayName").SetMaxSize(64)
 		table.ColMap("Name").SetMaxSize(64)
-		table.SetUniqueTogether("Name", "TeamId")
+		//table.SetUniqueTogether("Name", "TeamId")
 		table.ColMap("Header").SetMaxSize(1024)
-		table.ColMap("Purpose").SetMaxSize(128)
 		table.ColMap("CreatorId").SetMaxSize(26)
 
 		tablem := db.AddTableWithName(model.ProjectMember{}, "ProjectMembers").SetKeys(false, "ProjectId", "UserId")
