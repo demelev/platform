@@ -9,6 +9,11 @@ import (
 	"unicode/utf8"
 )
 
+const (
+	PROJECT_OPEN    = "O"
+	PROJECT_PRIVATE = "P"
+)
+
 type Project struct {
 	Id            string `json:"id"`
 	CreateAt      int64  `json:"create_at"`
@@ -78,10 +83,6 @@ func (o *Project) IsValid() *AppError {
 		return NewLocAppError("Project.IsValid", "model.project.is_valid.header.app_error", nil, "id="+o.Id)
 	}
 
-	if utf8.RuneCountInString(o.Purpose) > 128 {
-		return NewLocAppError("Project.IsValid", "model.project.is_valid.purpose.app_error", nil, "id="+o.Id)
-	}
-
 	if len(o.CreatorId) > 26 {
 		return NewLocAppError("Project.IsValid", "model.project.is_valid.creator_id.app_error", nil, "")
 	}
@@ -105,4 +106,30 @@ func (o *Project) PreUpdate() {
 
 func (o *Project) ExtraUpdated() {
 	o.ExtraUpdateAt = GetMillis()
+}
+
+func (o *Project) Sanitize() {
+}
+
+func (o *Project) SanitizeForNotLoggedIn() {
+}
+
+func ProjectMapToJson(u map[string]*Project) string {
+	b, err := json.Marshal(u)
+	if err != nil {
+		return ""
+	} else {
+		return string(b)
+	}
+}
+
+func ProjectMapFromJson(data io.Reader) map[string]*Project {
+	decoder := json.NewDecoder(data)
+	var projects map[string]*Project
+	err := decoder.Decode(&projects)
+	if err == nil {
+		return projects
+	} else {
+		return nil
+	}
 }

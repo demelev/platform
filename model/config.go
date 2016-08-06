@@ -36,9 +36,10 @@ const (
 	DIRECT_MESSAGE_ANY  = "any"
 	DIRECT_MESSAGE_TEAM = "team"
 
-	PERMISSIONS_ALL          = "all"
-	PERMISSIONS_TEAM_ADMIN   = "team_admin"
-	PERMISSIONS_SYSTEM_ADMIN = "system_admin"
+	PERMISSIONS_ALL           = "all"
+	PERMISSIONS_TEAM_ADMIN    = "team_admin"
+	PERMISSIONS_SYSTEM_ADMIN  = "system_admin"
+	PERMISSIONS_PROJECT_ADMIN = "system_admin"
 
 	FAKE_SETTING = "********************************"
 
@@ -199,6 +200,11 @@ type TeamSettings struct {
 	UserStatusAwayTimeout            *int64
 }
 
+type ProjectSettings struct {
+	EnableProjectCreation bool
+	RestrictProjectInvite *string
+}
+
 type LdapSettings struct {
 	// Basic
 	Enable             *bool
@@ -278,6 +284,7 @@ type NativeAppSettings struct {
 type Config struct {
 	ServiceSettings      ServiceSettings
 	TeamSettings         TeamSettings
+	ProjectSettings      ProjectSettings
 	SqlSettings          SqlSettings
 	LogSettings          LogSettings
 	PasswordSettings     PasswordSettings

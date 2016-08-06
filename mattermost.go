@@ -42,6 +42,7 @@ import (
 
 var flagCmdUpdateDb30 bool
 var flagCmdCreateTeam bool
+var flagCmdCreateProject bool
 var flagCmdCreateUser bool
 var flagCmdInviteUser bool
 var flagCmdAssignRole bool
@@ -289,6 +290,7 @@ func parseCmds() {
 	flag.StringVar(&flagEmail, "email", "", "")
 	flag.StringVar(&flagPassword, "password", "", "")
 	flag.StringVar(&flagTeamName, "team_name", "", "")
+	flag.StringVar(&flagProjectName, "project_name", "", "")
 	flag.StringVar(&flagChannelName, "channel_name", "", "")
 	flag.StringVar(&flagSiteURL, "site_url", "", "")
 	flag.StringVar(&flagConfirmBackup, "confirm_backup", "", "")
@@ -299,6 +301,7 @@ func parseCmds() {
 
 	flag.BoolVar(&flagCmdUpdateDb30, "upgrade_db_30", false, "")
 	flag.BoolVar(&flagCmdCreateTeam, "create_team", false, "")
+	flag.BoolVar(&flagCmdCreateProject, "create_project", false, "")
 	flag.BoolVar(&flagCmdCreateUser, "create_user", false, "")
 	flag.BoolVar(&flagCmdInviteUser, "invite_user", false, "")
 	flag.BoolVar(&flagCmdAssignRole, "assign_role", false, "")
@@ -785,6 +788,33 @@ func cmdCreateTeam() {
 		api.CreateTeam(c, team)
 		if c.Err != nil {
 			if c.Err.Id != "store.sql_team.save.domain_exists.app_error" {
+				l4g.Error("%v", c.Err)
+				flushLogAndExit(1)
+			}
+		}
+
+		os.Exit(0)
+	}
+}
+
+func cmdCreateProject() {
+	if flagCmdCreateProject {
+		if len(flagProjectName) == 0 {
+			fmt.Fprintln(os.Stderr, "flag needs an argument: -project_name")
+			flag.Usage()
+			os.Exit(1)
+		}
+
+		c := getMockContext()
+
+		project := &model.Project{}
+		project.DisplayName = flagProjectName
+		project.Name = flagProjectName
+		project.Type = model.PROJECT_OPEN
+
+		api.CreateProject(c, project)
+		if c.Err != nil {
+			if c.Err.Id != "store.sql_project.save.domain_exists.app_error" {
 				l4g.Error("%v", c.Err)
 				flushLogAndExit(1)
 			}
@@ -1604,6 +1634,10 @@ COMMANDS:
                                       and -email flag to create a team.
         Example:
             platform -create_team -team_name="name" -email="user@example.com"
+
+    -create_project                      Creates a projech.  It requires the -project_name.
+        Example:
+            platform -create_project -project_name="name"
 
     -create_user                      Creates a user.  It requires the -email and -password flag
                                        and -team_name and -username are optional to create a user.

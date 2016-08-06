@@ -16,6 +16,7 @@ import (
 
 const (
 	ROLE_SYSTEM_ADMIN          = "system_admin"
+	ROLE_PROJECT_ADMIN         = "project_admin"
 	USER_NOTIFY_ALL            = "all"
 	USER_NOTIFY_MENTION        = "mention"
 	USER_NOTIFY_NONE           = "none"

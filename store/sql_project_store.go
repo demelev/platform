@@ -252,14 +252,24 @@ func (s SqlProjectStore) SetDeleteAt(projectId string, deleteAt int64, updateAt 
 	return storeProject
 }
 
-func (s SqlProjectStore) PermanentDeleteByTeam(teamId string) StoreChannel {
+func (s SqlProjectStore) PermanentDelete(projectId string) StoreChannel {
+	storeProject := make(StoreChannel)
+	return storeProject
+}
+
+func (s SqlProjectStore) RemoveAllMembersByProject(projectId string) StoreChannel {
+	storeProject := make(StoreChannel)
+	return storeProject
+}
+
+func (s SqlProjectStore) PermanentDeleteByProject(projectId string) StoreChannel {
 	storeProject := make(StoreChannel)
 
 	go func() {
 		result := StoreResult{}
 
-		if _, err := s.GetMaster().Exec("DELETE FROM Projects WHERE TeamId = :TeamId", map[string]interface{}{"TeamId": teamId}); err != nil {
-			result.Err = model.NewLocAppError("SqlProjectStore.PermanentDeleteByTeam", "store.sql_project.permanent_delete_by_team.app_error", nil, "teamId="+teamId+", "+err.Error())
+		if _, err := s.GetMaster().Exec("DELETE FROM Projects WHERE ProjectId = :ProjectId", map[string]interface{}{"ProjectId": projectId}); err != nil {
+			result.Err = model.NewLocAppError("SqlProjectStore.PermanentDeleteByProject", "store.sql_project.permanent_delete_by_project.app_error", nil, "projectId="+projectId+", "+err.Error())
 		}
 
 		storeProject <- result
@@ -499,6 +509,11 @@ func (s SqlProjectStore) UpdateMember(member *model.ProjectMember) StoreChannel 
 		close(storeProject)
 	}()
 
+	return storeProject
+}
+
+func (s SqlProjectStore) GetAllProjectListing() StoreChannel {
+	storeProject := make(StoreChannel)
 	return storeProject
 }
 
@@ -905,25 +920,30 @@ func (s SqlProjectStore) IncrementMentionCount(projectId string, userId string) 
 	return storeProject
 }
 
-func (s SqlProjectStore) GetAll(teamId string) StoreChannel {
+func (s SqlProjectStore) GetAll() StoreChannel {
 	storeProject := make(StoreChannel)
 
-	go func() {
-		result := StoreResult{}
+	//go func() {
+	//result := StoreResult{}
 
-		var data []*model.Project
-		_, err := s.GetReplica().Select(&data, "SELECT * FROM Projects WHERE TeamId = :TeamId AND Type != 'D' ORDER BY Name", map[string]interface{}{"TeamId": teamId})
+	//var data []*model.Project
+	//_, err := s.GetReplica().Select(&data, "SELECT * FROM Projects WHERE TeamId = :TeamId AND Type != 'D' ORDER BY Name", map[string]interface{}{"TeamId": teamId})
 
-		if err != nil {
-			result.Err = model.NewLocAppError("SqlProjectStore.GetAll", "store.sql_project.get_all.app_error", nil, "teamId="+teamId+", err="+err.Error())
-		} else {
-			result.Data = data
-		}
+	//if err != nil {
+	//result.Err = model.NewLocAppError("SqlProjectStore.GetAll", "store.sql_project.get_all.app_error", nil, "teamId="+teamId+", err="+err.Error())
+	//} else {
+	//result.Data = data
+	//}
 
-		storeProject <- result
-		close(storeProject)
-	}()
+	//storeProject <- result
+	//close(storeProject)
+	//}()
 
+	return storeProject
+}
+
+func (s SqlProjectStore) GetByInviteId(inviteId string) StoreChannel {
+	storeProject := make(StoreChannel)
 	return storeProject
 }
 

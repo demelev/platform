@@ -23,6 +23,9 @@ type Routes struct {
 	Teams    *mux.Router // 'api/v3/teams'
 	NeedTeam *mux.Router // 'api/v3/teams/{team_id:[A-Za-z0-9]+}'
 
+	Projects    *mux.Router // 'api/v3/teams/{team_id:[A-Za-z0-9]+}/projects'
+	NeedProject *mux.Router // 'api/v3/teams/{team_id:[A-Za-z0-9]+}/projects/{project_id:[A-Za-z0-9]+}'
+
 	Channels        *mux.Router // 'api/v3/teams/{team_id:[A-Za-z0-9]+}/channels'
 	NeedChannel     *mux.Router // 'api/v3/teams/{team_id:[A-Za-z0-9]+}/channels/{channel_id:[A-Za-z0-9]+}'
 	NeedChannelName *mux.Router // 'api/v3/teams/{team_id:[A-Za-z0-9]+}/channels/name/{channel_name:[A-Za-z0-9_-]+}'
@@ -62,6 +65,8 @@ func InitApi() {
 	BaseRoutes.NeedUser = BaseRoutes.Users.PathPrefix("/{user_id:[A-Za-z0-9]+}").Subrouter()
 	BaseRoutes.Teams = BaseRoutes.ApiRoot.PathPrefix("/teams").Subrouter()
 	BaseRoutes.NeedTeam = BaseRoutes.Teams.PathPrefix("/{team_id:[A-Za-z0-9]+}").Subrouter()
+	BaseRoutes.Projects = BaseRoutes.NeedTeam.PathPrefix("/projects").Subrouter()
+	BaseRoutes.NeedProject = BaseRoutes.Projects.PathPrefix("/{project_id:[A-Za-z0-9]+}").Subrouter()
 	BaseRoutes.Channels = BaseRoutes.NeedTeam.PathPrefix("/channels").Subrouter()
 	BaseRoutes.NeedChannel = BaseRoutes.Channels.PathPrefix("/{channel_id:[A-Za-z0-9]+}").Subrouter()
 	BaseRoutes.NeedChannelName = BaseRoutes.Channels.PathPrefix("/name/{channel_name:[A-Za-z0-9_-]+}").Subrouter()
@@ -82,6 +87,7 @@ func InitApi() {
 
 	InitUser()
 	InitTeam()
+	InitProject()
 	InitChannel()
 	InitPost()
 	InitWebSocket()

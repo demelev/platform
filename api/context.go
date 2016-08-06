@@ -394,6 +394,13 @@ func (c *Context) IsTeamAdmin() bool {
 	return teamMember.IsTeamAdmin()
 }
 
+func (c *Context) IsProjectAdmin() bool {
+	if model.IsInRole(c.Session.Roles, model.ROLE_PROJECT_ADMIN) {
+		return true
+	}
+	return false
+}
+
 func (c *Context) RemoveSessionCookie(w http.ResponseWriter, r *http.Request) {
 	cookie := &http.Cookie{
 		Name:     model.SESSION_COOKIE_TOKEN,

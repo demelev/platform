@@ -23,6 +23,7 @@ type ProjectMember struct {
 	ProjectId    string    `json:"channel_id"`
 	UserId       string    `json:"user_id"`
 	Roles        string    `json:"roles"`
+	DeleteAt     int64     `json:"delete_at"`
 	LastViewedAt int64     `json:"last_viewed_at"`
 	MsgCount     int64     `json:"msg_count"`
 	MentionCount int64     `json:"mention_count"`

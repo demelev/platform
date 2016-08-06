@@ -108,9 +108,19 @@ type ChannelStore interface {
 
 type ProjectStore interface {
 	Save(post *model.Project) StoreChannel
+	GetMember(projectId string, userId string) StoreChannel
+	GetByName(teamId string, name string) StoreChannel
+	GetAll() StoreChannel
+	GetByInviteId(inviteId string) StoreChannel
+	GetAllProjectListing() StoreChannel
+	SaveMember(member *model.ProjectMember) StoreChannel
+	UpdateMember(member *model.ProjectMember) StoreChannel
 	Update(post *model.Project) StoreChannel
 	Get(id string) StoreChannel
 	Delete(projectId string, time int64) StoreChannel
+	PermanentDeleteByProject(projectId string) StoreChannel
+	RemoveAllMembersByProject(projectId string) StoreChannel
+	PermanentDelete(projectId string) StoreChannel
 }
 
 type PostStore interface {
