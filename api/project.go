@@ -4,14 +4,14 @@
 package api
 
 import (
-	"bytes"
+	//"bytes"
 	"fmt"
-	"html/template"
+	//"html/template"
 	"net/http"
-	"net/url"
+	//"net/url"
 	"strconv"
 	"strings"
-	"time"
+	//"time"
 
 	l4g "github.com/alecthomas/log4go"
 	"github.com/gorilla/mux"
@@ -531,7 +531,7 @@ func InviteMembersToProject(c *Context, project *model.Project, user *model.User
 	for _, invite := range invites {
 		if len(invite) > 0 {
 
-			sender := user.GetDisplayName()
+			//sender := user.GetDisplayName()
 			//TODO: implement it
 
 			/*
@@ -738,8 +738,8 @@ func getMyProject(c *Context, w http.ResponseWriter, r *http.Request) {
 //}
 
 func getProjectMembers(c *Context, w http.ResponseWriter, r *http.Request) {
-	params := mux.Vars(r)
-	id := params["id"]
+	//params := mux.Vars(r)
+	//id := params["id"]
 
 	//TODO: implement it
 	/*

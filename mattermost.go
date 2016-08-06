@@ -70,6 +70,7 @@ var flagLicenseFile string
 var flagEmail string
 var flagPassword string
 var flagTeamName string
+var flagProjectName string
 var flagChannelName string
 var flagSiteURL string
 var flagConfirmBackup string
