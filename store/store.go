@@ -110,7 +110,7 @@ type ProjectStore interface {
 	Save(post *model.Project) StoreChannel
 	GetMember(projectId string, userId string) StoreChannel
 	GetByName(teamId string, name string) StoreChannel
-	GetAll() StoreChannel
+	GetAll(teamId string) StoreChannel
 	GetByInviteId(inviteId string) StoreChannel
 	GetAllProjectListing() StoreChannel
 	SaveMember(member *model.ProjectMember) StoreChannel

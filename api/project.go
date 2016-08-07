@@ -244,7 +244,10 @@ func GetAllProjectListings(c *Context, w http.ResponseWriter, r *http.Request) {
 }
 
 func getAllProjects(c *Context, w http.ResponseWriter, r *http.Request) {
-	if result := <-Srv.Store.Project().GetAll(); result.Err != nil {
+	params := mux.Vars(r)
+	teamId := params["team_id"]
+
+	if result := <-Srv.Store.Project().GetAll(teamId); result.Err != nil {
 		c.Err = result.Err
 		return
 	} else {

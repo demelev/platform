@@ -96,7 +96,8 @@ export default class Sidebar extends React.Component {
 
         const publicChannels = channels.filter((channel) => channel.type === Constants.OPEN_CHANNEL);
         const privateChannels = channels.filter((channel) => channel.type === Constants.PRIVATE_CHANNEL);
-        const projectsList    = ProjectStore.getAll();
+        //const projectsList    = ProjectStore.getAll();
+        //console.log(projectsList);
 
         const preferences = PreferenceStore.getCategory(Constants.Preferences.CATEGORY_DIRECT_CHANNEL_SHOW);
 

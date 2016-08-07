@@ -268,6 +268,26 @@
     "translation": "Error in getting users profile for id=%v forcing logout"
   },
   {
+    "id": "store.sql_project.save.domain_exists.app_error",
+    "translation": "A project with that domain already exists"
+  },
+  {
+    "id": "store.sql_project.save.open_transaction.app_error",
+    "translation": "Unable to open transaction."
+  },
+  {
+    "id": "store.sql_project.get_by_name.existing.app_error",
+    "translation": "We couldn't find the existing project"
+  },
+  {
+    "id": "store.sql_project.get_by_name.missing.app_error",
+    "translation": "Project does not exist"
+  },
+  {
+    "id": "api.project.init.debug",
+    "translation": "Initializing project api routes"
+  },
+  {
     "id": "api.channel.init.debug",
     "translation": "Initializing channel api routes"
   },

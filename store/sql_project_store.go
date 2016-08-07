@@ -59,22 +59,19 @@ func (s SqlProjectStore) Save(project *model.Project) StoreChannel {
 
 	go func() {
 		var result StoreResult
-		//if project.Type == model.project_DIRECT {
-		//result.Err = model.NewLocAppError("SqlProjectStore.Save", "store.sql_project.save.direct_project.app_error", nil, "")
-		//} else {
-		//if transaction, err := s.GetMaster().Begin(); err != nil {
-		//result.Err = model.NewLocAppError("SqlProjectStore.Save", "store.sql_project.save.open_transaction.app_error", nil, err.Error())
-		//} else {
-		//result = s.saveProjectT(transaction, project)
-		//if result.Err != nil {
-		//transaction.Rollback()
-		//} else {
-		//if err := transaction.Commit(); err != nil {
-		//result.Err = model.NewLocAppError("SqlProjectStore.Save", "store.sql_project.save.commit_transaction.app_error", nil, err.Error())
-		//}
-		//}
-		//}
-		//}
+
+		if transaction, err := s.GetMaster().Begin(); err != nil {
+			result.Err = model.NewLocAppError("SqlProjectStore.Save", "store.sql_project.save.open_transaction.app_error", nil, err.Error())
+		} else {
+			result = s.saveProjectT(transaction, project)
+			if result.Err != nil {
+				transaction.Rollback()
+			} else {
+				if err := transaction.Commit(); err != nil {
+					result.Err = model.NewLocAppError("SqlProjectStore.Save", "store.sql_project.save.commit_transaction.app_error", nil, err.Error())
+				}
+			}
+		}
 
 		storeProject <- result
 		close(storeProject)
@@ -106,22 +103,22 @@ func (s SqlProjectStore) saveProjectT(transaction *gorp.Transaction, project *mo
 	//}
 	//}
 
-	//if err := transaction.Insert(project); err != nil {
-	//if IsUniqueConstraintError(err.Error(), []string{"Name", "projects_name_teamid_key"}) {
-	//dupProject := model.Project{}
-	//s.GetMaster().SelectOne(&dupProject, "SELECT * FROM Projects WHERE TeamId = :TeamId AND Name = :Name AND DeleteAt > 0", map[string]interface{}{"TeamId": project.TeamId, "Name": project.Name})
-	//if dupProject.DeleteAt > 0 {
-	//result.Err = model.NewLocAppError("SqlProjectStore.Save", "store.sql_project.save_project.previously.app_error", nil, "id="+project.Id+", "+err.Error())
-	//} else {
-	//result.Err = model.NewLocAppError("SqlProjectStore.Save", project_EXISTS_ERROR, nil, "id="+project.Id+", "+err.Error())
-	//result.Data = &dupProject
-	//}
-	//} else {
-	//result.Err = model.NewLocAppError("SqlProjectStore.Save", "store.sql_project.save_project.save.app_error", nil, "id="+project.Id+", "+err.Error())
-	//}
-	//} else {
-	//result.Data = project
-	//}
+	if err := transaction.Insert(project); err != nil {
+		if IsUniqueConstraintError(err.Error(), []string{"Name", "projects_name_teamid_key"}) {
+			dupProject := model.Project{}
+			s.GetMaster().SelectOne(&dupProject, "SELECT * FROM Projects WHERE TeamId = :TeamId AND Name = :Name AND DeleteAt > 0", map[string]interface{}{"TeamId": project.TeamId, "Name": project.Name})
+			if dupProject.DeleteAt > 0 {
+				result.Err = model.NewLocAppError("SqlProjectStore.Save", "store.sql_project.save_project.previously.app_error", nil, "id="+project.Id+", "+err.Error())
+			} else {
+				result.Err = model.NewLocAppError("SqlProjectStore.Save", PROJECT_EXISTS_ERROR, nil, "id="+project.Id+", "+err.Error())
+				result.Data = &dupProject
+			}
+		} else {
+			result.Err = model.NewLocAppError("SqlProjectStore.Save", "store.sql_project.save_project.save.app_error", nil, "id="+project.Id+", "+err.Error())
+		}
+	} else {
+		result.Data = project
+	}
 
 	return result
 }
@@ -920,24 +917,25 @@ func (s SqlProjectStore) IncrementMentionCount(projectId string, userId string) 
 	return storeProject
 }
 
-func (s SqlProjectStore) GetAll() StoreChannel {
+func (s SqlProjectStore) GetAll(teamId string) StoreChannel {
 	storeProject := make(StoreChannel)
 
-	//go func() {
-	//result := StoreResult{}
+	go func() {
+		result := StoreResult{}
 
-	//var data []*model.Project
-	//_, err := s.GetReplica().Select(&data, "SELECT * FROM Projects WHERE TeamId = :TeamId AND Type != 'D' ORDER BY Name", map[string]interface{}{"TeamId": teamId})
+		var data []*model.Project
+		//_, err := s.GetReplica().Select(&data, "SELECT * FROM Projects WHERE TeamId = :TeamId AND Type != 'D' ORDER BY Name", map[string]interface{}{"TeamId": teamId})
+		_, err := s.GetReplica().Select(&data, "SELECT * FROM Projects WHERE TeamId = :TeamId ORDER BY Name", map[string]interface{}{"TeamId": teamId})
 
-	//if err != nil {
-	//result.Err = model.NewLocAppError("SqlProjectStore.GetAll", "store.sql_project.get_all.app_error", nil, "teamId="+teamId+", err="+err.Error())
-	//} else {
-	//result.Data = data
-	//}
+		if err != nil {
+			result.Err = model.NewLocAppError("SqlProjectStore.GetAll", "store.sql_project.get_all.app_error", nil, "teamId="+teamId+", err="+err.Error())
+		} else {
+			result.Data = data
+		}
 
-	//storeProject <- result
-	//close(storeProject)
-	//}()
+		storeProject <- result
+		close(storeProject)
+	}()
 
 	return storeProject
 }

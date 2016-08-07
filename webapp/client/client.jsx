@@ -75,6 +75,10 @@ export default class Client {
         return `${this.url}${this.urlVersion}/teams/${this.getTeamId()}`;
     }
 
+    getProjectsRoute() {
+        return `${this.url}${this.urlVersion}/teams/${this.getTeamId()}/projects`;
+    }
+
     getChannelsRoute() {
         return `${this.url}${this.urlVersion}/teams/${this.getTeamId()}/channels`;
     }
@@ -1164,6 +1168,15 @@ export default class Client {
         accept('application/json').
         send({last_viewed_at: lastViewedAt}).
         end(this.handleResponse.bind(this, 'setLastViewedAt', success, error));
+    }
+
+    getProjects(success, error) {
+        request.
+            get(`${this.getProjectsRoute()}/`).
+            set(this.defaultHeaders).
+            type('application/json').
+            accept('application/json').
+            end(this.handleResponse.bind(this, 'getProjects', success, error));
     }
 
     getChannels(success, error) {

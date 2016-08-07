@@ -328,6 +328,7 @@ func parseCmds() {
 	flag.Parse()
 
 	flagRunCmds = (flagCmdCreateTeam ||
+		flagCmdCreateProject ||
 		flagCmdCreateUser ||
 		flagCmdInviteUser ||
 		flagCmdLeaveTeam ||
@@ -355,6 +356,7 @@ func runCmds() {
 	cmdVersion()
 	cmdRunClientTests()
 	cmdCreateTeam()
+	cmdCreateProject()
 	cmdCreateUser()
 	cmdInviteUser()
 	cmdLeaveTeam()
@@ -806,12 +808,20 @@ func cmdCreateProject() {
 			os.Exit(1)
 		}
 
+		if len(flagTeamName) == 0 {
+			fmt.Fprintln(os.Stderr, "flag needs an argument: -team_name")
+			flag.Usage()
+			os.Exit(1)
+		}
+
 		c := getMockContext()
 
 		project := &model.Project{}
 		project.DisplayName = flagProjectName
 		project.Name = flagProjectName
 		project.Type = model.PROJECT_OPEN
+		//TODO: Get team Id from team_name
+		project.TeamId = "aaaaaaaaaaaaaaaaaaaaaaaaaa"
 
 		api.CreateProject(c, project)
 		if c.Err != nil {

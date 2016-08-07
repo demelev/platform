@@ -60,6 +60,34 @@ export function checkVersion() {
     }
 }
 
+export function getProjects(doVersionCheck) {
+    if (isCallInProgress('getProjects')) {
+        return null;
+    }
+
+    callTracker.getProjects = utils.getTimestamp();
+
+    return Client.getProjects(
+        (data) => {
+            callTracker.getProjects = 0;
+
+            if (doVersionCheck) {
+                checkVersion();
+            }
+
+            AppDispatcher.handleServerAction({
+                type: ActionTypes.RECEIVED_PROJECTS,
+                projects: data.projects,
+                members: data.members
+            });
+        },
+        (err) => {
+            callTracker.getProjects = 0;
+            dispatchError(err, 'getProjects');
+        }
+    );
+}
+
 export function getChannels(doVersionCheck) {
     if (isCallInProgress('getChannels')) {
         return null;
@@ -281,6 +309,28 @@ export function getProfilesForDirectMessageList() {
         (err) => {
             callTracker.getProfilesForDirectMessageList = 0;
             dispatchError(err, 'getProfilesForDirectMessageList');
+        }
+    );
+}
+
+export function getProjects() {
+    if (isCallInProgress('getProjects')) {
+        return;
+    }
+
+    callTracker.getProjects = utils.getTimestamp();
+    Client.getProjects(
+        (data) => {
+            callTracker.getProjects = 0;
+
+            AppDispatcher.handleServerAction({
+                type: ActionTypes.RECEIVED_PROJECTS,
+                profiles: data
+            });
+        },
+        (err) => {
+            callTracker.getProjects = 0;
+            dispatchError(err, 'getProjects');
         }
     );
 }
