@@ -57,6 +57,7 @@ export default class Sidebar extends React.Component {
         this.hideMoreDirectChannelsModal = this.hideMoreDirectChannelsModal.bind(this);
 
         this.createChannelElement = this.createChannelElement.bind(this);
+        this.createProjecElement = this.createProjectElement.bind(this);
         this.updateTitle = this.updateTitle.bind(this);
 
         this.navigateChannelShortcut = this.navigateChannelShortcut.bind(this);
@@ -96,8 +97,7 @@ export default class Sidebar extends React.Component {
 
         const publicChannels = channels.filter((channel) => channel.type === Constants.OPEN_CHANNEL);
         const privateChannels = channels.filter((channel) => channel.type === Constants.PRIVATE_CHANNEL);
-        //const projectsList    = ProjectStore.getAll();
-        //console.log(projectsList);
+        const projectsList    = ProjectStore.getAll();
 
         const preferences = PreferenceStore.getCategory(Constants.Preferences.CATEGORY_DIRECT_CHANNEL_SHOW);
 
@@ -146,6 +146,7 @@ export default class Sidebar extends React.Component {
             members,
             publicChannels,
             privateChannels,
+            projectsList,
             directChannels,
             directNonTeamChannels,
             unreadCounts: JSON.parse(JSON.stringify(ChannelStore.getUnreadCounts())),
@@ -580,6 +581,126 @@ export default class Sidebar extends React.Component {
             </li>
         );
     }
+    createProjectElement(project, index, arr, handleClose) {
+        //TODO: implement it
+        const members = this.state.members;
+        const activeId = this.state.activeId;
+        //const unreadCount = this.state.unreadCounts[channel.id] || {msgs: 0, mentions: 0};
+        //let msgCount;
+
+        let linkClass = '';
+        if (project.id === activeId) {
+            linkClass = 'active';
+        }
+
+        let rowClass = 'sidebar-channel';
+
+        //var unread = false;
+        //if (channelMember) {
+            //msgCount = unreadCount.msgs + unreadCount.mentions;
+            //unread = msgCount > 0 || channelMember.mention_count > 0;
+        //}
+
+        //if (unread) {
+            //rowClass += ' unread-title';
+
+            //if (channel.id !== activeId) {
+                //if (!this.firstUnreadChannel) {
+                    //this.firstUnreadChannel = channel.name;
+                //}
+                //this.lastUnreadChannel = channel.name;
+            //}
+        //}
+
+        //var badge = null;
+        //if (channelMember) {
+            //if (unreadCount.mentions) {
+                //badge = <span className='badge pull-right small'>{unreadCount.mentions}</span>;
+                //this.badgesActive = true;
+            //}
+        //} else if (this.state.loadingDMChannel === index && channel.type === 'D') {
+            //badge = (
+                //<img
+                    //className='channel-loading-gif pull-right'
+                    //src={loadingGif}
+                ///>
+            //);
+        //}
+
+        //if (msgCount > 0) {
+            //rowClass += ' has-badge';
+        //}
+
+        //var icon = null;
+        //if (channel.type === 'O') {
+            //icon = <div className='status'><i className='fa fa-globe'></i></div>;
+        //} else if (channel.type === 'P') {
+            //icon = <div className='status'><i className='fa fa-lock'></i></div>;
+        //} else {
+            //// set up status icon for direct message channels (status is null for other channel types)
+            //icon = <StatusIcon status={channel.status}/>;
+        //}
+
+        let closeButton = null;
+        const removeTooltip = (
+            <Tooltip id='remove-dm-tooltip'>
+                <FormattedMessage
+                    id='sidebar.removeList'
+                    defaultMessage='Remove from list'
+                />
+            </Tooltip>
+        );
+        if (handleClose && !badge) {
+            closeButton = (
+                <OverlayTrigger
+                    delayShow={1000}
+                    placement='top'
+                    overlay={removeTooltip}
+                >
+                    <span
+                        onClick={(e) => handleClose(e, channel)}
+                        className='btn-close'
+                    >
+                        {'×'}
+                    </span>
+                </OverlayTrigger>
+            );
+
+            rowClass += ' has-close';
+        }
+
+        //let tutorialTip = null;
+        //if (this.state.showTutorialTip && channel.name === Constants.DEFAULT_CHANNEL) {
+            //tutorialTip = this.createTutorialTip();
+            //this.openLeftSidebar();
+        //}
+
+        //let link = '';
+        //if (channel.fake) {
+            //link = '/' + this.state.currentTeam.name + '/channels/' + channel.name + '?fakechannel=' + encodeURIComponent(JSON.stringify(channel));
+        //} else {
+            //link = '/' + this.state.currentTeam.name + '/channels/' + channel.name;
+        //}
+
+        return (
+            <li
+                key={project.name}
+                ref={project.name}
+                className={linkClass}
+            >
+                <Link
+                    to={link}
+                    className={rowClass}
+                >
+                    {icon}
+                    {project.display_name}
+                    {badge}
+                    {closeButton}
+                </Link>
+                {tutorialTip}
+            </li>
+        );
+    }
     render() {
         // Check if we have all info needed to render
         if (this.state.currentTeam == null || this.state.currentUser == null) {
@@ -595,7 +716,7 @@ export default class Sidebar extends React.Component {
 
         // create elements for all 3 types of channels
         const publicChannelItems = this.state.publicChannels.map(this.createChannelElement);
-        const projectChannelItems = this.state.publicChannels.map(this.createChannelElement);
+        const projectChannelItems = this.state.projectsList.map(this.createProjectElement);
 
         const privateChannelItems = this.state.privateChannels.map(this.createChannelElement);
 

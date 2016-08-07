@@ -403,19 +403,18 @@ func (s SqlProjectStore) GetByName(teamId string, name string) StoreChannel {
 	go func() {
 		result := StoreResult{}
 
-		//project := model.Project{}
+		project := model.Project{}
 
-		/*
-		 *if err := s.GetReplica().SelectOne(&project, "SELECT * FROM Projects WHERE (TeamId = :TeamId OR TeamId = '') AND Name = :Name AND DeleteAt = 0", map[string]interface{}{"TeamId": teamId, "Name": name}); err != nil {
-		 *    if err == sql.ErrNoRows {
-		 *        result.Err = model.NewLocAppError("SqlProjectStore.GetByName", MISSING_project_ERROR, nil, "teamId="+teamId+", "+"name="+name+", "+err.Error())
-		 *    } else {
-		 *        result.Err = model.NewLocAppError("SqlProjectStore.GetByName", "store.sql_project.get_by_name.existing.app_error", nil, "teamId="+teamId+", "+"name="+name+", "+err.Error())
-		 *    }
-		 *} else {
-		 *    result.Data = &project
-		 *}
-		 */
+		//TODO: fit it
+		if err := s.GetReplica().SelectOne(&project, "SELECT * FROM Projects WHERE (TeamId = :TeamId OR TeamId = '') AND Name = :Name AND DeleteAt = 0", map[string]interface{}{"TeamId": teamId, "Name": name}); err != nil {
+			//if err == sql.ErrNoRows {
+			//result.Err = model.NewLocAppError("SqlProjectStore.GetByName", MISSING_PROJECT_ERROR, nil, "teamId="+teamId+", "+"name="+name+", "+err.Error())
+			//} else {
+			//result.Err = model.NewLocAppError("SqlProjectStore.GetByName", "store.sql_project.get_by_name.existing.app_error", nil, "teamId="+teamId+", "+"name="+name+", "+err.Error())
+			//}
+		} else {
+			result.Data = &project
+		}
 
 		storeProject <- result
 		close(storeProject)
