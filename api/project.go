@@ -23,6 +23,7 @@ import (
 func InitProject() {
 	l4g.Debug(utils.T("api.project.init.debug"))
 
+	BaseRoutes.Projects.Handle("/", ApiUserRequiredActivity(getProjects, false)).Methods("GET")
 	BaseRoutes.Projects.Handle("/create", ApiAppHandler(createProject)).Methods("POST")
 	BaseRoutes.Projects.Handle("/all", ApiAppHandler(getAllProjects)).Methods("GET")
 	BaseRoutes.Projects.Handle("/all_project_listings", ApiUserRequired(GetAllProjectListings)).Methods("GET")
@@ -240,6 +241,29 @@ func GetAllProjectListings(c *Context, w http.ResponseWriter, r *http.Request) {
 		}
 
 		w.Write([]byte(model.ProjectMapToJson(m)))
+	}
+}
+
+func getProjects(c *Context, w http.ResponseWriter, r *http.Request) {
+
+	if result := <-Srv.Store.Project().GetProjects(c.TeamId, c.Session.UserId); result.Err != nil {
+		if result.Err.Id == "store.sql_channel.get_projects.not_found.app_error" {
+			//lets make sure the user is valid
+			if result := <-Srv.Store.User().Get(c.Session.UserId); result.Err != nil {
+				c.Err = result.Err
+				c.RemoveSessionCookie(w, r)
+				l4g.Error(utils.T("api.projects.get_projects.error"), c.Session.UserId)
+				return
+			}
+		}
+		c.Err = result.Err
+		return
+	} else if HandleEtag(result.Data.(*model.ProjectList).Etag(), w, r) {
+		return
+	} else {
+		data := result.Data.(*model.ProjectList)
+		w.Header().Set(model.HEADER_ETAG_SERVER, data.Etag())
+		w.Write([]byte(data.ToJson()))
 	}
 }
 

@@ -5,6 +5,7 @@ package store
 
 import (
 	//"database/sql"
+	l4g "github.com/alecthomas/log4go"
 	"github.com/go-gorp/gorp"
 	"github.com/mattermost/platform/model"
 	"github.com/mattermost/platform/utils"
@@ -283,7 +284,7 @@ type projectWithMember struct {
 
 func (s SqlProjectStore) GetProjects(teamId string, userId string) StoreChannel {
 	storeProject := make(StoreChannel)
-
+	// TODO: done the implementation.
 	go func() {
 		result := StoreResult{}
 
@@ -308,6 +309,21 @@ func (s SqlProjectStore) GetProjects(teamId string, userId string) StoreChannel 
 		 *            }
 		 *        }
 		 */
+
+		var data []*model.Project
+		//_, err := s.GetReplica().Select(&data, "SELECT * FROM Projects WHERE TeamId = :TeamId ORDER BY Name", map[string]interface{}{"TeamId": teamId})
+
+		_, err := s.GetReplica().Select(&data, "SELECT * FROM Projects WHERE TeamId = :TeamId", map[string]interface{}{"TeamId": teamId})
+
+		if err != nil {
+			result.Err = model.NewLocAppError("SqlProjectStore.GetProjects", "store.sql_project.get_projects.app_error", nil, "teamId="+teamId+", err="+err.Error())
+		} else {
+			list := &model.ProjectList{make([]*model.Project, len(data)), make(map[string]*model.ProjectMember)}
+			l4g.Error("api.projects.get_projects.error", data)
+
+			list.Projects = data
+			result.Data = list
+		}
 
 		storeProject <- result
 		close(storeProject)

@@ -79,6 +79,7 @@ function preNeedsTeam(nextState, replace, callback) {
 
     var d1 = $.Deferred(); //eslint-disable-line new-cap
     var d2 = $.Deferred(); //eslint-disable-line new-cap
+    var d3 = $.Deferred(); //eslint-disable-line new-cap
 
     Client.getChannels(
         (data) => {
@@ -93,6 +94,22 @@ function preNeedsTeam(nextState, replace, callback) {
         (err) => {
             AsyncClient.dispatchError(err, 'getChannels');
             d1.resolve();
+        }
+    );
+
+    Client.getProjects(
+        (data) => {
+            AppDispatcher.handleServerAction({
+                type: ActionTypes.RECEIVED_PROJECTS,
+                projects: data.projects,
+                members: data.members
+            });
+
+            d3.resolve();
+        },
+        (err) => {
+            AsyncClient.dispatchError(err, 'getProjects');
+            d3.resolve();
         }
     );
 
@@ -111,9 +128,10 @@ function preNeedsTeam(nextState, replace, callback) {
         }
     );
 
-    $.when(d1, d2).done(() => {
-        callback();
-    });
+    $.when(d1, d2, d3).done(callback);
+    //$.when(d1, d2, d3).done(() => {
+        //callback();
+    //});
 }
 
 function onPermalinkEnter(nextState) {

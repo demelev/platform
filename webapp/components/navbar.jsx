@@ -16,6 +16,7 @@ import ToggleModalButton from './toggle_modal_button.jsx';
 import StatusIcon from './status_icon.jsx';
 
 import UserStore from 'stores/user_store.jsx';
+import ProjectStore from 'stores/project_store.jsx';
 import ChannelStore from 'stores/channel_store.jsx';
 import TeamStore from 'stores/team_store.jsx';
 
@@ -80,6 +81,7 @@ export default class Navbar extends React.Component {
     }
 
     componentDidMount() {
+        ProjectStore.addChangeListener(this.onChange);
         ChannelStore.addChangeListener(this.onChange);
         ChannelStore.addExtraInfoChangeListener(this.onChange);
         UserStore.addStatusesChangeListener(this.onChange);
@@ -88,6 +90,7 @@ export default class Navbar extends React.Component {
     }
 
     componentWillUnmount() {
+        ProjectStore.removeChangeListener(this.onChange);
         ChannelStore.removeChangeListener(this.onChange);
         ChannelStore.removeExtraInfoChangeListener(this.onChange);
         UserStore.removeStatusesChangeListener(this.onChange);

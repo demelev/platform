@@ -111,6 +111,7 @@ type ProjectStore interface {
 	GetMember(projectId string, userId string) StoreChannel
 	GetByName(teamId string, name string) StoreChannel
 	GetAll(teamId string) StoreChannel
+	GetProjects(teamId string, userId string) StoreChannel
 	GetByInviteId(inviteId string) StoreChannel
 	GetAllProjectListing() StoreChannel
 	SaveMember(member *model.ProjectMember) StoreChannel

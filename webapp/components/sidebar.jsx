@@ -13,6 +13,7 @@ import StatusIcon from './status_icon.jsx';
 import ChannelStore from 'stores/channel_store.jsx';
 import UserStore from 'stores/user_store.jsx';
 import TeamStore from 'stores/team_store.jsx';
+import ProjectStore from 'stores/project_store.jsx';
 import PreferenceStore from 'stores/preference_store.jsx';
 
 import * as AsyncClient from 'utils/async_client.jsx';
@@ -55,6 +56,9 @@ export default class Sidebar extends React.Component {
         this.hideNewChannelModal = this.hideNewChannelModal.bind(this);
         this.showMoreDirectChannelsModal = this.showMoreDirectChannelsModal.bind(this);
         this.hideMoreDirectChannelsModal = this.hideMoreDirectChannelsModal.bind(this);
+
+        this.showMoreProjectsModal = this.showMoreProjectsModal.bind(this);
+        this.showNewProjectModal = this.showNewProjectModal.bind(this);
 
         this.createChannelElement = this.createChannelElement.bind(this);
         this.createProjecElement = this.createProjectElement.bind(this);
@@ -380,6 +384,16 @@ export default class Sidebar extends React.Component {
 
     showNewChannelModal(type) {
         this.setState({newChannelModalType: type});
+    }
+
+    showNewProjectModal() {
+        this.setState({newProjectModal: ''});
+    }
+
+    showMoreProjectsModal() {
+        // manually show the modal because using data-toggle messes with keyboard focus when the modal is dismissed
+        // TODO: done this method.
+        $('#more_channels').modal({'data-channeltype': 'O'}).modal('show');
     }
 
     hideNewChannelModal() {
@@ -716,7 +730,8 @@ export default class Sidebar extends React.Component {
 
         // create elements for all 3 types of channels
         const publicChannelItems = this.state.publicChannels.map(this.createChannelElement);
-        const projectChannelItems = this.state.projectsList.map(this.createProjectElement);
+        //const projectChannelItems = publicChannelItems;
+        const projectItems = this.state.projectsList.map(this.createProjectElement);
 
         const privateChannelItems = this.state.privateChannels.map(this.createChannelElement);
 
@@ -787,6 +802,14 @@ export default class Sidebar extends React.Component {
                 />
             </Tooltip>
         );
+        const createProjectTootlip = (
+            <Tooltip id='new-project-tooltip' >
+                <FormattedMessage
+                    id='sidebar.createProject'
+                    defaultMessage='Create new project'
+                />
+            </Tooltip>
+        );
         const createGroupTootlip = (
             <Tooltip id='new-group-tooltip'>
                 <FormattedMessage
@@ -823,6 +846,22 @@ export default class Sidebar extends React.Component {
                     className='add-channel-btn'
                     href='#'
                     onClick={this.showNewChannelModal.bind(this, Constants.OPEN_CHANNEL)}
+                >
+                    {'+'}
+                </a>
+            </OverlayTrigger>
+        );
+
+        let createProjectIcon = (
+            <OverlayTrigger
+                delayShow={500}
+                placement='top'
+                overlay={createProjectTootlip}
+            >
+                <a
+                    className='add-channel-btn'
+                    href='#'
+                    onClick={this.showNewProjectModal.bind(this)}
                 >
                     {'+'}
                 </a>
@@ -902,6 +941,28 @@ export default class Sidebar extends React.Component {
                         <li>
                             <h4>
                                 <FormattedMessage
+                                    id='sidebar.projects'
+                                    defaultMessage='Projects'
+                                />
+                                {createProjectIcon}
+                            </h4>
+                        </li>
+                        {projectItems}
+                        <li>
+                            <a
+                                href='#'
+                                className='nav-more'
+                                onClick={this.showMoreProjectsModal}
+                            >
+                                <FormattedMessage
+                                    id='sidebar.moreElips'
+                                    defaultMessage='More...'
+                                />
+                            </a>
+                        </li>
+                        <li>
+                            <h4>
+                                <FormattedMessage
                                     id='sidebar.channels'
                                     defaultMessage='Channels'
                                 />
@@ -909,16 +970,6 @@ export default class Sidebar extends React.Component {
                             </h4>
                         </li>
                         {publicChannelItems}
-                        <li>
-                            <h4>
-                                <FormattedMessage
-                                    id='sidebar.projects'
-                                    defaultMessage='Projects'
-                                />
-                                {createPublicChannelIcon}
-                            </h4>
-                        </li>
-                        {projectChannelItems}
                         <li>
                             <a
                                 href='#'

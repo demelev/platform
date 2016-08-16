@@ -367,6 +367,8 @@ ProjectStore.dispatchToken = AppDispatcher.register((payload) => {
     var action = payload.action;
     var currentId;
 
+    console.log("ProjectStore action received" + action.type);
+
     switch (action.type) {
     case ActionTypes.CLICK_PROJECT:
         ProjectStore.setCurrentId(action.id);
@@ -376,6 +378,7 @@ ProjectStore.dispatchToken = AppDispatcher.register((payload) => {
         break;
 
     case ActionTypes.RECEIVED_PROJECTS:
+        console.log("Received projects");
         ProjectStore.storeProjects(action.projects);
         ProjectStore.storeProjectMembers(action.members);
         currentId = ProjectStore.getCurrentId();

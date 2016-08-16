@@ -1381,6 +1381,7 @@
   "sidebar.channels": "Channels",
   "sidebar.projects": "Projects",
   "sidebar.createChannel": "Create new channel",
+  "sidebar.createProject": "Create new project",
   "sidebar.createGroup": "Create new group",
   "sidebar.direct": "Direct Messages",
   "sidebar.more": "More",

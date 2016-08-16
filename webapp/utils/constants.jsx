@@ -65,6 +65,11 @@ export const ActionTypes = keyMirror({
     POST_DELETED: null,
     REMOVE_POST: null,
 
+    RECEIVED_PROJECTS: null,
+    RECEIVED_PROJECT: null,
+    RECEIVED_MORE_PROJECTS: null,
+    RECEIVED_PROJECT_EXTRA_INFO: null,
+
     RECEIVED_CHANNELS: null,
     RECEIVED_CHANNEL: null,
     RECEIVED_MORE_CHANNELS: null,
@@ -160,6 +165,7 @@ export const Constants = {
 
     StatTypes: keyMirror({
         TOTAL_USERS: null,
+        TOTAL_PROJECTS: null,
         TOTAL_PUBLIC_CHANNELS: null,
         TOTAL_PRIVATE_GROUPS: null,
         TOTAL_POSTS: null,
