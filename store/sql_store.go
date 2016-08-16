@@ -143,6 +143,7 @@ func NewSqlStore() Store {
 
 	sqlStore.team.(*SqlTeamStore).UpgradeSchemaIfNeeded()
 	sqlStore.channel.(*SqlChannelStore).UpgradeSchemaIfNeeded()
+	sqlStore.project.(*SqlProjectStore).UpgradeSchemaIfNeeded()
 	sqlStore.post.(*SqlPostStore).UpgradeSchemaIfNeeded()
 	sqlStore.user.(*SqlUserStore).UpgradeSchemaIfNeeded()
 	sqlStore.audit.(*SqlAuditStore).UpgradeSchemaIfNeeded()
@@ -160,6 +161,7 @@ func NewSqlStore() Store {
 
 	sqlStore.team.(*SqlTeamStore).CreateIndexesIfNotExists()
 	sqlStore.channel.(*SqlChannelStore).CreateIndexesIfNotExists()
+	sqlStore.project.(*SqlProjectStore).CreateIndexesIfNotExists()
 	sqlStore.post.(*SqlPostStore).CreateIndexesIfNotExists()
 	sqlStore.user.(*SqlUserStore).CreateIndexesIfNotExists()
 	sqlStore.audit.(*SqlAuditStore).CreateIndexesIfNotExists()

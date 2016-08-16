@@ -815,13 +815,22 @@ func cmdCreateProject() {
 		}
 
 		c := getMockContext()
+		var team *model.Team
+
+		if len(flagTeamName) > 0 {
+			if result := <-api.Srv.Store.Team().GetByName(flagTeamName); result.Err != nil {
+				l4g.Error("%v", result.Err)
+				flushLogAndExit(1)
+			} else {
+				team = result.Data.(*model.Team)
+			}
+		}
 
 		project := &model.Project{}
 		project.DisplayName = flagProjectName
 		project.Name = flagProjectName
 		project.Type = model.PROJECT_OPEN
-		//TODO: Get team Id from team_name
-		project.TeamId = "aaaaaaaaaaaaaaaaaaaaaaaaaa"
+		project.TeamId = team.Id
 
 		api.CreateProject(c, project)
 		if c.Err != nil {
@@ -1648,7 +1657,7 @@ COMMANDS:
 
     -create_project                      Creates a projech.  It requires the -project_name.
         Example:
-            platform -create_project -project_name="name"
+            platform -create_project -project_name="name" -team_name="teamName"
 
     -create_user                      Creates a user.  It requires the -email and -password flag
                                        and -team_name and -username are optional to create a user.

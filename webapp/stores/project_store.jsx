@@ -367,7 +367,7 @@ ProjectStore.dispatchToken = AppDispatcher.register((payload) => {
     var action = payload.action;
     var currentId;
 
-    console.log("ProjectStore action received" + action.type);
+    console.log("iii ProjectStore action received " + action.type);
 
     switch (action.type) {
     case ActionTypes.CLICK_PROJECT:

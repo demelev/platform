@@ -99,6 +99,7 @@ function preNeedsTeam(nextState, replace, callback) {
 
     Client.getProjects(
         (data) => {
+            console.log("Received projects send : " + JSON.stringify(data));
             AppDispatcher.handleServerAction({
                 type: ActionTypes.RECEIVED_PROJECTS,
                 projects: data.projects,
