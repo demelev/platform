@@ -321,20 +321,20 @@ class ProjectStoreClass extends EventEmitter {
     }
 
     setUnreadCount(id) {
-        const ch = this.get(id);
-        const chMember = this.getMember(id);
+        //const ch = this.get(id);
+        //const chMember = this.getMember(id);
 
-        let chMentionCount = chMember.mention_count;
-        let chUnreadCount = ch.total_msg_count - chMember.msg_count - chMentionCount;
+        //let chMentionCount = chMember.mention_count;
+        //let chUnreadCount = ch.total_msg_count - chMember.msg_count - chMentionCount;
 
-        if (ch.type === 'D') {
-            chMentionCount = chUnreadCount;
-            chUnreadCount = 0;
-        } else if (chMember.notify_props && chMember.notify_props.mark_unread === NotificationPrefs.MENTION) {
-            chUnreadCount = 0;
-        }
+        //if (ch.type === 'D') {
+            //chMentionCount = chUnreadCount;
+            //chUnreadCount = 0;
+        //} else if (chMember.notify_props && chMember.notify_props.mark_unread === NotificationPrefs.MENTION) {
+            //chUnreadCount = 0;
+        //}
 
-        this.unreadCounts[id] = {msgs: chUnreadCount, mentions: chMentionCount};
+        //this.unreadCounts[id] = {msgs: chUnreadCount, mentions: chMentionCount};
     }
 
     setUnreadCounts() {
@@ -367,8 +367,6 @@ ProjectStore.dispatchToken = AppDispatcher.register((payload) => {
     var action = payload.action;
     var currentId;
 
-    console.log("iii ProjectStore action received " + action.type);
-
     switch (action.type) {
     case ActionTypes.CLICK_PROJECT:
         ProjectStore.setCurrentId(action.id);
@@ -378,15 +376,14 @@ ProjectStore.dispatchToken = AppDispatcher.register((payload) => {
         break;
 
     case ActionTypes.RECEIVED_PROJECTS:
-        console.log("Received projects");
         ProjectStore.storeProjects(action.projects);
         ProjectStore.storeProjectMembers(action.members);
         currentId = ProjectStore.getCurrentId();
-        if (currentId && window.isActive) {
-            ProjectStore.resetCounts(currentId);
-        }
-        ProjectStore.setUnreadCounts();
-        ProjectStore.emitChange();
+        //if (currentId && window.isActive) {
+            //ProjectStore.resetCounts(currentId);
+        //}
+        //ProjectStore.setUnreadCounts();
+        //ProjectStore.emitChange();
         break;
 
     case ActionTypes.RECEIVED_PROJECT:

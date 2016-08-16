@@ -14,6 +14,7 @@ import * as AsyncClient from 'utils/async_client.jsx';
 import Client from 'client/web_client.jsx';
 import * as Utils from 'utils/utils.jsx';
 import ChannelStore from 'stores/channel_store.jsx';
+import ProjectStore from 'stores/project_store.jsx';
 
 import emojiRoute from 'routes/route_emoji.jsx';
 import integrationsRoute from 'routes/route_integrations.jsx';
@@ -99,18 +100,17 @@ function preNeedsTeam(nextState, replace, callback) {
 
     Client.getProjects(
         (data) => {
-            console.log("Received projects send : " + JSON.stringify(data));
             AppDispatcher.handleServerAction({
                 type: ActionTypes.RECEIVED_PROJECTS,
                 projects: data.projects,
                 members: data.members
             });
 
-            d3.resolve();
+            d2.resolve();
         },
         (err) => {
             AsyncClient.dispatchError(err, 'getProjects');
-            d3.resolve();
+            d2.resolve();
         }
     );
 
@@ -121,11 +121,11 @@ function preNeedsTeam(nextState, replace, callback) {
                 profiles: data
             });
 
-            d2.resolve();
+            d3.resolve();
         },
         (err) => {
             AsyncClient.dispatchError(err, 'getProfiles');
-            d2.resolve();
+            d3.resolve();
         }
     );
 
