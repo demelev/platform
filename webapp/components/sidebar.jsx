@@ -61,7 +61,7 @@ export default class Sidebar extends React.Component {
         this.showNewProjectModal = this.showNewProjectModal.bind(this);
 
         this.createChannelElement = this.createChannelElement.bind(this);
-        this.createProjecElement = this.createProjectElement.bind(this);
+        this.createProjectElement = this.createProjectElement.bind(this);
         this.updateTitle = this.updateTitle.bind(this);
 
         this.navigateChannelShortcut = this.navigateChannelShortcut.bind(this);
@@ -609,7 +609,7 @@ export default class Sidebar extends React.Component {
 
         let rowClass = 'sidebar-channel';
 
-        //var unread = false;
+        var unread = false;
         //if (channelMember) {
             //msgCount = unreadCount.msgs + unreadCount.mentions;
             //unread = msgCount > 0 || channelMember.mention_count > 0;
@@ -626,7 +626,7 @@ export default class Sidebar extends React.Component {
             //}
         //}
 
-        //var badge = null;
+        var badge = null;
         //if (channelMember) {
             //if (unreadCount.mentions) {
                 //badge = <span className='badge pull-right small'>{unreadCount.mentions}</span>;
@@ -645,7 +645,7 @@ export default class Sidebar extends React.Component {
             //rowClass += ' has-badge';
         //}
 
-        //var icon = null;
+        var icon = null;
         //if (channel.type === 'O') {
             //icon = <div className='status'><i className='fa fa-globe'></i></div>;
         //} else if (channel.type === 'P') {
@@ -683,13 +683,13 @@ export default class Sidebar extends React.Component {
             rowClass += ' has-close';
         }
 
-        //let tutorialTip = null;
+        let tutorialTip = null;
         //if (this.state.showTutorialTip && channel.name === Constants.DEFAULT_CHANNEL) {
             //tutorialTip = this.createTutorialTip();
             //this.openLeftSidebar();
         //}
 
-        //let link = '';
+        let link = '';
         //if (channel.fake) {
             //link = '/' + this.state.currentTeam.name + '/channels/' + channel.name + '?fakechannel=' + encodeURIComponent(JSON.stringify(channel));
         //} else {
