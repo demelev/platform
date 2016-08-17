@@ -164,6 +164,7 @@ export default class Sidebar extends React.Component {
 
     componentDidMount() {
         ChannelStore.addChangeListener(this.onChange);
+        ProjectStore.addChangeListener(this.onChange);
         UserStore.addChangeListener(this.onChange);
         UserStore.addStatusesChangeListener(this.onChange);
         TeamStore.addChangeListener(this.onChange);
@@ -205,6 +206,7 @@ export default class Sidebar extends React.Component {
 
     componentWillUnmount() {
         ChannelStore.removeChangeListener(this.onChange);
+        ProjectStore.removeChangeListener(this.onChange);
         UserStore.removeChangeListener(this.onChange);
         UserStore.removeStatusesChangeListener(this.onChange);
         TeamStore.removeChangeListener(this.onChange);
@@ -690,6 +692,7 @@ export default class Sidebar extends React.Component {
         //}
 
         let link = '';
+        link = '/' + this.state.currentTeam.name + '/projects/' + project.name;
         //if (channel.fake) {
             //link = '/' + this.state.currentTeam.name + '/channels/' + channel.name + '?fakechannel=' + encodeURIComponent(JSON.stringify(channel));
         //} else {
