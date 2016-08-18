@@ -39,12 +39,18 @@ func NewSqlProjectStore(sqlStore *SqlStore) ProjectStore {
 		tablem.ColMap("UserId").SetMaxSize(26)
 		tablem.ColMap("Roles").SetMaxSize(64)
 		tablem.ColMap("NotifyProps").SetMaxSize(2000)
+
+		tablec := db.AddTableWithName(model.ProjectChannel{}, "ProjectChannels").SetKeys(false, "ProjectId", "ChannelId")
+		tablec.ColMap("ProjectId").SetMaxSize(26)
+		tablec.ColMap("ChannelId").SetMaxSize(26)
 	}
 
 	return s
 }
 
 func (s SqlProjectStore) UpgradeSchemaIfNeeded() {
+	s.RemoveColumnIfExists("Projects", "Purpose")
+	s.RemoveColumnIfExists("Projects", "TotalMsgCount")
 }
 
 func (s SqlProjectStore) CreateIndexesIfNotExists() {
@@ -53,6 +59,9 @@ func (s SqlProjectStore) CreateIndexesIfNotExists() {
 
 	s.CreateIndexIfNotExists("idx_projectmembers_project_id", "ProjectMembers", "ProjectId")
 	s.CreateIndexIfNotExists("idx_projectmembers_user_id", "ProjectMembers", "UserId")
+
+	s.CreateIndexIfNotExists("idx_projectchannel_project_id", "ProjectChannels", "ProjectId")
+	s.CreateIndexIfNotExists("idx_projectchannel_channel_id", "ProjectChannels", "ChannelId")
 }
 
 func (s SqlProjectStore) Save(project *model.Project) StoreChannel {
@@ -382,6 +391,7 @@ type projectIdWithCountAndUpdateAt struct {
 	UpdateAt      int64
 }
 
+//TODO: Implement it
 func (s SqlProjectStore) GetProjectCounts(teamId string, userId string) StoreChannel {
 	storeProject := make(StoreChannel)
 
@@ -421,13 +431,12 @@ func (s SqlProjectStore) GetByName(teamId string, name string) StoreChannel {
 
 		project := model.Project{}
 
-		//TODO: fit it
 		if err := s.GetReplica().SelectOne(&project, "SELECT * FROM Projects WHERE (TeamId = :TeamId OR TeamId = '') AND Name = :Name AND DeleteAt = 0", map[string]interface{}{"TeamId": teamId, "Name": name}); err != nil {
-			//if err == sql.ErrNoRows {
-			//result.Err = model.NewLocAppError("SqlProjectStore.GetByName", MISSING_PROJECT_ERROR, nil, "teamId="+teamId+", "+"name="+name+", "+err.Error())
-			//} else {
-			//result.Err = model.NewLocAppError("SqlProjectStore.GetByName", "store.sql_project.get_by_name.existing.app_error", nil, "teamId="+teamId+", "+"name="+name+", "+err.Error())
-			//}
+			if err == sql.ErrNoRows {
+				result.Err = model.NewLocAppError("SqlProjectStore.GetByName", MISSING_PROJECT_ERROR, nil, "teamId="+teamId+", "+"name="+name+", "+err.Error())
+			} else {
+				result.Err = model.NewLocAppError("SqlProjectStore.GetByName", "store.sql_project.get_by_name.existing.app_error", nil, "teamId="+teamId+", "+"name="+name+", "+err.Error())
+			}
 		} else {
 			result.Data = &project
 		}
@@ -1006,4 +1015,24 @@ func (s SqlProjectStore) ExtraUpdateByUser(userId string, time int64) StoreChann
 	}()
 
 	return storeProject
+}
+
+func (s SqlProjectStore) SaveChannel(project_channel *model.ProjectChannel) StoreChannel {
+	storeChannel := make(StoreChannel)
+
+	go func () {
+		result := StoreResult{}
+
+		project_channel.PreSave()
+
+		if err: = s.GetMaster().Insert(project_channel); err != nil {
+			result.Err = model.NewLocAppError("SqlProjectStore.SaveChannel", "store.sql_project.save_channel.app_error", nil, "ProjectId=" + project_channel.ProjectId + ", " + err.Error())
+		} else {
+			result.Data = project_channel
+		}
+		storeChannel <- result
+		close(storeChannel)
+	} ()
+
+	return storeChannel
 }

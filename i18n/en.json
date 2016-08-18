@@ -2564,6 +2564,10 @@
     "translation": "Invalid user id"
   },
   {
+    "id": "model.project_channel.is_valid.channel_id.app_error",
+    "translation": "Invalid channel id"
+  },
+  {
     "id": "model.client.connecting.app_error",
     "translation": "We encountered an error while connecting to the server"
   },
