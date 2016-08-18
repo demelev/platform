@@ -23,6 +23,10 @@ function onChannelEnter(nextState, replace, callback) {
     doChannelChange(nextState, replace, callback);
 }
 
+function onProjectEnter(nextState, replace, callback) {
+    doProjectChange(nextState, replace, callback);
+}
+
 function doChannelChange(state, replace, callback) {
     let channel;
     if (state.location.query.fakechannel) {
@@ -52,6 +56,37 @@ function doChannelChange(state, replace, callback) {
         }
     }
     GlobalActions.emitChannelClickEvent(channel);
+    callback();
+}
+
+function doProjectChange(state, replace, callback) {
+    let channel;
+
+    if (state.location.query.fakechannel) {
+        channel = JSON.parse(state.location.query.fakechannel);
+    } else {
+        if (state.params.project == 'proj')
+            channel = ChannelStore.getByName('town-square');
+        if (!channel) {
+            Client.joinChannelByName(
+                state.params.channel,
+                (data) => {
+                    GlobalActions.emitChannelClickEvent(data);
+                    callback();
+                },
+                () => {
+                    if (state.params.team) {
+                        replace('/' + state.params.team + '/channels/town-square');
+                    } else {
+                        replace('/');
+                    }
+                    callback();
+                }
+            );
+            return;
+        }
+    }
+    GlobalActions.emitProjectClickEvent(channel);
     callback();
 }
 
@@ -152,6 +187,18 @@ export default {
                 System.import('components/needs_team.jsx').then(RouteUtils.importComponentSuccess(callback));
             },
             childRoutes: [
+                {
+                    path: 'projects/:project',
+                    onEnter: onProjectEnter,
+                    getComponents: (location, callback) => {
+                        Promise.all([
+                            System.import('components/sidebar.jsx'),
+                            System.import('components/channel_view.jsx')
+                        ]).then(
+                        (comarr) => callback(null, {sidebar: comarr[0].default, center: comarr[1].default})
+                        );
+                    }
+                },
                 {
                     path: 'channels/:channel',
                     onEnter: onChannelEnter,

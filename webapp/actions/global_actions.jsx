@@ -70,6 +70,49 @@ export function emitChannelClickEvent(channel) {
     }
 }
 
+export function emitProjectClickEvent(project) {
+    function userVisitedFakeChannel(chan, success, fail) {
+        const otherUserId = Utils.getUserIdFromChannelName(chan);
+        Client.createDirectChannel(
+            otherUserId,
+            (data) => {
+                success(data);
+            },
+            () => {
+                fail();
+            }
+        );
+    }
+    function switchToChannel(chan) {
+        AsyncClient.getChannels(true);
+        AsyncClient.getChannelExtraInfo(chan.id);
+        AsyncClient.updateLastViewedAt(chan.id);
+        AsyncClient.getPosts(chan.id);
+        trackPage();
+
+        AppDispatcher.handleViewAction({
+            type: ActionTypes.CLICK_CHANNEL,
+            name: chan.name,
+            id: chan.id,
+            prev: ChannelStore.getCurrentId()
+        });
+    }
+
+    if (project.fake) {
+        userVisitedFakeChannel(
+            project,
+            (data) => {
+                switchToChannel(data);
+            },
+            () => {
+                browserHistory.push('/' + this.state.currentTeam.name);
+            }
+        );
+    } else {
+        switchToChannel(project);
+    }
+}
+
 export function emitInitialLoad(callback) {
     Client.getInitialLoad(
             (data) => {
