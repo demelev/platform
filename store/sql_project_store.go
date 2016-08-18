@@ -4,7 +4,7 @@
 package store
 
 import (
-	//"database/sql"
+	"database/sql"
 	l4g "github.com/alecthomas/log4go"
 	"github.com/go-gorp/gorp"
 	"github.com/mattermost/platform/model"
@@ -1020,19 +1020,19 @@ func (s SqlProjectStore) ExtraUpdateByUser(userId string, time int64) StoreChann
 func (s SqlProjectStore) SaveChannel(project_channel *model.ProjectChannel) StoreChannel {
 	storeChannel := make(StoreChannel)
 
-	go func () {
+	go func() {
 		result := StoreResult{}
 
 		project_channel.PreSave()
 
-		if err: = s.GetMaster().Insert(project_channel); err != nil {
-			result.Err = model.NewLocAppError("SqlProjectStore.SaveChannel", "store.sql_project.save_channel.app_error", nil, "ProjectId=" + project_channel.ProjectId + ", " + err.Error())
+		if err := s.GetMaster().Insert(project_channel); err != nil {
+			result.Err = model.NewLocAppError("SqlProjectStore.SaveChannel", "store.sql_project.save_channel.app_error", nil, "ProjectId="+project_channel.ProjectId+", "+err.Error())
 		} else {
 			result.Data = project_channel
 		}
 		storeChannel <- result
 		close(storeChannel)
-	} ()
+	}()
 
 	return storeChannel
 }
