@@ -328,8 +328,6 @@ func (s SqlProjectStore) GetProjects(teamId string, userId string) StoreChannel 
 			result.Err = model.NewLocAppError("SqlProjectStore.GetProjects", "store.sql_project.get_projects.app_error", nil, "teamId="+teamId+", err="+err.Error())
 		} else {
 			list := &model.ProjectList{make([]*model.Project, len(data)), make(map[string]*model.ProjectMember)}
-			l4g.Error("api.projects.get_projects.error", data)
-
 			list.Projects = data
 			result.Data = list
 		}
@@ -1025,6 +1023,7 @@ func (s SqlProjectStore) SaveChannel(project_channel *model.ProjectChannel) Stor
 
 		project_channel.PreSave()
 
+		l4g.Debug("Save channel ", project_channel)
 		if err := s.GetMaster().Insert(project_channel); err != nil {
 			result.Err = model.NewLocAppError("SqlProjectStore.SaveChannel", "store.sql_project.save_channel.app_error", nil, "ProjectId="+project_channel.ProjectId+", "+err.Error())
 		} else {

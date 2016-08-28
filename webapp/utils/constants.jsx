@@ -65,6 +65,9 @@ export const ActionTypes = keyMirror({
     POST_DELETED: null,
     REMOVE_POST: null,
 
+    CLICK_PROJECT: null,
+    CREATE_PROJECT: null,
+    LEAVE_PROJECT: null,
     RECEIVED_PROJECTS: null,
     RECEIVED_PROJECT: null,
     RECEIVED_MORE_PROJECTS: null,

@@ -60,33 +60,10 @@ function doChannelChange(state, replace, callback) {
 }
 
 function doProjectChange(state, replace, callback) {
-    let channel;
-
-    if (state.location.query.fakechannel) {
-        channel = JSON.parse(state.location.query.fakechannel);
-    } else {
-        if (state.params.project == 'proj')
-            channel = ChannelStore.getByName('town-square');
-        if (!channel) {
-            Client.joinChannelByName(
-                state.params.channel,
-                (data) => {
-                    GlobalActions.emitChannelClickEvent(data);
-                    callback();
-                },
-                () => {
-                    if (state.params.team) {
-                        replace('/' + state.params.team + '/channels/town-square');
-                    } else {
-                        replace('/');
-                    }
-                    callback();
-                }
-            );
-            return;
-        }
-    }
-    GlobalActions.emitProjectClickEvent(channel);
+    let channel = ChannelStore.getByName(state.params.project);
+    let project = ProjectStore.getByName(state.params.project);
+    project.channel = channel;
+    GlobalActions.emitProjectClickEvent(project);
     callback();
 }
 
@@ -193,7 +170,7 @@ export default {
                     getComponents: (location, callback) => {
                         Promise.all([
                             System.import('components/sidebar.jsx'),
-                            System.import('components/channel_view.jsx')
+                            System.import('components/project_view.jsx')
                         ]).then(
                         (comarr) => callback(null, {sidebar: comarr[0].default, center: comarr[1].default})
                         );

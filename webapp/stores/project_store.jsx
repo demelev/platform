@@ -3,6 +3,7 @@
 
 import AppDispatcher from '../dispatcher/app_dispatcher.jsx';
 import EventEmitter from 'events';
+import ChannelStore from 'stores/channel_store.jsx';
 
 var Utils;
 import Constants from 'utils/constants.jsx';
@@ -370,9 +371,10 @@ ProjectStore.dispatchToken = AppDispatcher.register((payload) => {
     switch (action.type) {
     case ActionTypes.CLICK_PROJECT:
         ProjectStore.setCurrentId(action.id);
-        ProjectStore.resetCounts(action.id);
-        ProjectStore.setPostMode(ProjectStore.POST_MODE_PROJECT);
+        var channel = ChannelStore.getByName(action.name);
+        ChannelStore.setCurrentId(channel.id);
         ProjectStore.emitChange();
+        ChannelStore.emitChange();
         break;
 
     case ActionTypes.RECEIVED_PROJECTS:

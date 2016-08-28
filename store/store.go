@@ -108,6 +108,7 @@ type ChannelStore interface {
 
 type ProjectStore interface {
 	Save(post *model.Project) StoreChannel
+	SaveChannel(channel *model.ProjectChannel) StoreChannel
 	GetMember(projectId string, userId string) StoreChannel
 	GetByName(teamId string, name string) StoreChannel
 	GetAll(teamId string) StoreChannel

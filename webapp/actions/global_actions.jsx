@@ -4,6 +4,7 @@
 import AppDispatcher from 'dispatcher/app_dispatcher.jsx';
 
 import ChannelStore from 'stores/channel_store.jsx';
+import ProjectStore from 'stores/project_store.jsx';
 import PostStore from 'stores/post_store.jsx';
 import UserStore from 'stores/user_store.jsx';
 import BrowserStore from 'stores/browser_store.jsx';
@@ -71,46 +72,22 @@ export function emitChannelClickEvent(channel) {
 }
 
 export function emitProjectClickEvent(project) {
-    function userVisitedFakeChannel(chan, success, fail) {
-        const otherUserId = Utils.getUserIdFromChannelName(chan);
-        Client.createDirectChannel(
-            otherUserId,
-            (data) => {
-                success(data);
-            },
-            () => {
-                fail();
-            }
-        );
-    }
-    function switchToChannel(chan) {
-        AsyncClient.getChannels(true);
-        AsyncClient.getChannelExtraInfo(chan.id);
-        AsyncClient.updateLastViewedAt(chan.id);
-        AsyncClient.getPosts(chan.id);
+    function switchToProject(project) {
+        //AsyncClient.getProjects(true);
+        //AsyncClient.getChannels(true);
+        //AsyncClient.getChannelExtraInfo(proj.channel.id);
+        //AsyncClient.getProjectExtraInfo(proj.id);
         trackPage();
 
         AppDispatcher.handleViewAction({
-            type: ActionTypes.CLICK_CHANNEL,
-            name: chan.name,
-            id: chan.id,
-            prev: ChannelStore.getCurrentId()
+            type: ActionTypes.CLICK_PROJECT,
+            name: project.name,
+            id: project.id,
+            prev: ProjectStore.getCurrentId()
         });
     }
 
-    if (project.fake) {
-        userVisitedFakeChannel(
-            project,
-            (data) => {
-                switchToChannel(data);
-            },
-            () => {
-                browserHistory.push('/' + this.state.currentTeam.name);
-            }
-        );
-    } else {
-        switchToChannel(project);
-    }
+    switchToProject(project);
 }
 
 export function emitInitialLoad(callback) {

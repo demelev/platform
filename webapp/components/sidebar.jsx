@@ -92,9 +92,10 @@ export default class Sidebar extends React.Component {
     }
 
     getStateFromStores() {
-        const members = ChannelStore.getAllMembers();
+        const members          = ChannelStore.getAllMembers();
         const currentChannelId = ChannelStore.getCurrentId();
-        const currentUserId = UserStore.getCurrentId();
+        const currentProjectId = ProjectStore.getCurrentId();
+        const currentUserId    = UserStore.getCurrentId();
 
         const channels = Object.assign([], ChannelStore.getAll());
         channels.sort(this.sortChannelsByDisplayName);
@@ -147,6 +148,7 @@ export default class Sidebar extends React.Component {
 
         return {
             activeId: currentChannelId,
+            activeProjectId: currentProjectId,
             members,
             publicChannels,
             privateChannels,
@@ -600,11 +602,12 @@ export default class Sidebar extends React.Component {
     createProjectElement(project, index, arr, handleClose) {
         //TODO: implement it
         const members = this.state.members;
-        const activeId = this.state.activeId;
+        const activeId = this.state.activeProjectId;
         //const unreadCount = this.state.unreadCounts[channel.id] || {msgs: 0, mentions: 0};
         //let msgCount;
 
         let linkClass = '';
+        console.log("Active id is " + this.state.activeProjectId);
         if (project.id === activeId) {
             linkClass = 'active';
         }

@@ -68,6 +68,23 @@ func createProject(c *Context, w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	main := new(model.Channel)
+	main.DisplayName = project.Name + " - Main"
+	main.Name = project.Name + "-main"
+	main.Header = ""
+	main.Type = model.CHANNEL_PROJECT
+	if ch, err := CreateChannel(c, main, true); err != nil {
+		l4g.Error(utils.T("api.project.createproject.error"), err)
+		c.Err = err
+		return
+	} else {
+		pchan := &model.ProjectChannel{ProjectId: rproject.Id, ChannelId: ch.Id}
+		if pchanResult := <-Srv.Store.Project().SaveChannel(pchan); pchanResult.Err != nil {
+			c.Err = pchanResult.Err
+			return
+		}
+	}
+
 	if user != nil {
 		err := JoinUserToProject(project, user)
 		if err != nil {
@@ -85,6 +102,8 @@ func CreateProject(c *Context, project *model.Project) *model.Project {
 		c.SetInvalidParam("createProject", "project")
 		return nil
 	}
+
+	//TODO: Create three default channels for this project.
 
 	//if !isProjectCreationAllowed(c, project.Email) {
 	//return nil

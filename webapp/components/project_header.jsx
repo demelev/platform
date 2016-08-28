@@ -6,7 +6,7 @@ import 'bootstrap';
 import NavbarSearchBox from './search_bar.jsx';
 import MessageWrapper from './message_wrapper.jsx';
 import PopoverListMembers from './popover_list_members.jsx';
-import EditChannelHeaderModal from './edit_channel_header_modal.jsx';
+import EditProjectHeaderModal from './edit_channel_header_modal.jsx';
 import EditChannelPurposeModal from './edit_channel_purpose_modal.jsx';
 import ChannelInfoModal from './channel_info_modal.jsx';
 import ChannelInviteModal from './channel_invite_modal.jsx';
@@ -41,7 +41,7 @@ import {Tooltip, OverlayTrigger, Popover} from 'react-bootstrap';
 
 import React from 'react';
 
-export default class ChannelHeader extends React.Component {
+export default class ProjectHeader extends React.Component {
     constructor(props) {
         super(props);
 
@@ -85,7 +85,6 @@ export default class ChannelHeader extends React.Component {
     }
 
     componentDidMount() {
-        ChannelStore.addChangeListener(this.onListenerChange);
         ProjectStore.addChangeListener(this.onListenerChange);
         ChannelStore.addExtraInfoChangeListener(this.onListenerChange);
         SearchStore.addSearchChangeListener(this.onListenerChange);
@@ -97,7 +96,6 @@ export default class ChannelHeader extends React.Component {
     }
 
     componentWillUnmount() {
-        ChannelStore.removeChangeListener(this.onListenerChange);
         ProjectStore.removeChangeListener(this.onListenerChange);
         ChannelStore.removeExtraInfoChangeListener(this.onListenerChange);
         SearchStore.removeSearchChangeListener(this.onListenerChange);
@@ -306,7 +304,7 @@ export default class ChannelHeader extends React.Component {
                 >
                     <ToggleModalButton
                         role='menuitem'
-                        dialogType={EditChannelHeaderModal}
+                        dialogType={EditProjectHeaderModal}
                         dialogProps={{channel}}
                     >
                         <FormattedMessage
@@ -444,7 +442,7 @@ export default class ChannelHeader extends React.Component {
                     >
                         <ToggleModalButton
                             role='menuitem'
-                            dialogType={EditChannelHeaderModal}
+                            dialogType={EditProjectHeaderModal}
                             dialogProps={{channel}}
                         >
                             <FormattedMessage
@@ -621,6 +619,6 @@ export default class ChannelHeader extends React.Component {
     }
 }
 
-ChannelHeader.propTypes = {
+ProjectHeader.propTypes = {
     channelId: React.PropTypes.string.isRequired
 };

@@ -1170,6 +1170,18 @@ export default class Client {
         end(this.handleResponse.bind(this, 'setLastViewedAt', success, error));
     }
 
+    createProject(project, success, error) {
+        request.
+            post(`${this.getProjectsRoute()}/create`).
+            set(this.defaultHeaders).
+            type('application/json').
+            accept('application/json').
+            send(project).
+            end(this.handleResponse.bind(this, 'createProject', success, error));
+
+        this.track('api', 'api_projects_create', project.type, 'name', project.name);
+    }
+
     getProjects(success, error) {
         request.
             get(`${this.getProjectsRoute()}/`).

@@ -4,7 +4,8 @@
 import $ from 'jquery';
 import React from 'react';
 
-import ChannelHeader from 'components/channel_header.jsx';
+import ProjectHeader from 'components/project_header.jsx';
+import ChannelHeader from 'components/project_header.jsx';
 import FileUploadOverlay from 'components/file_upload_overlay.jsx';
 import CreatePost from 'components/create_post.jsx';
 import PostViewCache from 'components/post_view/post_view_cache.jsx';
@@ -14,7 +15,7 @@ import ProjectStore from 'stores/project_store.jsx';
 
 import * as Utils from 'utils/utils.jsx';
 
-export default class ChannelView extends React.Component {
+export default class ProjectView extends React.Component {
     constructor(props) {
         super(props);
 
@@ -25,17 +26,8 @@ export default class ChannelView extends React.Component {
         this.state = this.getStateFromStores(props);
     }
     getStateFromStores(props) {
-        let channel = ChannelStore.getByName(props.params.channel);
-        if (!channel)
-        {
-            let proj = props.params.project;
-            if (proj)
-            {
-                //FIXME: hee
-                //channel = ProjectStore.getByName(proj);
-                channel = ChannelStore.getByName(proj);
-            }
-        }
+        const project = ProjectStore.getByName(props.params.project);
+        const channel = ChannelStore.getByName(props.params.project);
 
         const channelId = channel ? channel.id : '';
         return {
@@ -49,12 +41,12 @@ export default class ChannelView extends React.Component {
         this.setState(this.getStateFromStores(this.props));
     }
     componentDidMount() {
-        ChannelStore.addChangeListener(this.updateState);
+        ProjectStore.addChangeListener(this.updateState);
 
         $('body').addClass('app__body');
     }
     componentWillUnmount() {
-        ChannelStore.removeChangeListener(this.updateState);
+        ProjectStore.removeChangeListener(this.updateState);
 
         $('body').removeClass('app__body');
     }
@@ -93,9 +85,9 @@ export default class ChannelView extends React.Component {
         );
     }
 }
-ChannelView.defaultProps = {
+ProjectView.defaultProps = {
 };
 
-ChannelView.propTypes = {
+ProjectView.propTypes = {
     params: React.PropTypes.object.isRequired
 };

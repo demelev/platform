@@ -132,6 +132,42 @@ class NewChannelFlow extends React.Component {
                 this.setState({serverError: err.message});
             }
         );
+
+        const project = {
+            team_id: cu.team_id,
+            name: this.state.channelName,
+            display_name: this.state.channelDisplayName,
+            header: this.state.channelHeader,
+            type: this.state.channelType
+        };
+
+        Client.createProject(
+            project,
+            (data) => {
+                Client.getProject(
+                    data.id,
+                    (data2) => {
+                        AppDispatcher.handleServerAction({
+                            type: ActionTypes.RECEIVED_PROJECT,
+                            project: data2.project
+                        });
+
+                        this.props.onModalDismissed();
+                        browserHistory.push(Utils.getTeamURLNoOriginFromAddressBar() + '/projects/' + data2.project.name);
+                    }
+                );
+            },
+            (err) => {
+                if (err.id === 'model.project.is_valid.2_or_more.app_error') {
+                    this.setState({flowState: SHOW_EDIT_URL_THEN_COMPLETE});
+                }
+                if (err.id === 'store.sql_project.update.exists.app_error') {
+                    this.setState({serverError: Utils.localizeMessage('project_flow.alreadyExist', 'A channel with that URL already exists')});
+                    return;
+                }
+                this.setState({serverError: err.message});
+            }
+        );
     }
     typeSwitched() {
         if (this.state.channelType === 'P') {

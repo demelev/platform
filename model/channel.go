@@ -11,6 +11,7 @@ import (
 
 const (
 	CHANNEL_OPEN    = "O"
+	CHANNEL_PROJECT = "PR"
 	CHANNEL_PRIVATE = "P"
 	CHANNEL_DIRECT  = "D"
 	DEFAULT_CHANNEL = "town-square"
