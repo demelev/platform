@@ -24,13 +24,14 @@ func InitProject() {
 	l4g.Debug(utils.T("api.project.init.debug"))
 
 	BaseRoutes.Projects.Handle("/", ApiUserRequiredActivity(getProjects, false)).Methods("GET")
+	BaseRoutes.Projects.Handle("/channels", ApiUserRequiredActivity(getProjectsChannels, false)).Methods("GET")
 	BaseRoutes.Projects.Handle("/create", ApiAppHandler(createProject)).Methods("POST")
 	BaseRoutes.Projects.Handle("/all", ApiAppHandler(getAllProjects)).Methods("GET")
 	BaseRoutes.Projects.Handle("/all_project_listings", ApiUserRequired(GetAllProjectListings)).Methods("GET")
 	BaseRoutes.Projects.Handle("/find_project_by_name", ApiAppHandler(findProjectByName)).Methods("POST")
 
 	BaseRoutes.NeedProject.Handle("/members/{id:[A-Za-z0-9]+}", ApiUserRequired(getProjectMembers)).Methods("GET")
-	BaseRoutes.NeedProject.Handle("/me", ApiUserRequired(getMyProject)).Methods("GET")
+	BaseRoutes.NeedProject.Handle("/", ApiUserRequiredActivity(getProject, false)).Methods("GET")
 	BaseRoutes.NeedProject.Handle("/update", ApiUserRequired(updateProject)).Methods("POST")
 
 	BaseRoutes.NeedProject.Handle("/invite_members", ApiUserRequired(inviteMembersToProject)).Methods("POST")
@@ -51,17 +52,7 @@ func createProject(c *Context, w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	var user *model.User
-	if len(c.Session.UserId) > 0 {
-		uchan := Srv.Store.User().Get(c.Session.UserId)
-
-		if result := <-uchan; result.Err != nil {
-			c.Err = result.Err
-			return
-		} else {
-			user = result.Data.(*model.User)
-		}
-	}
+	project.CreatorId = c.Session.UserId
 
 	rproject := CreateProject(c, project)
 	if c.Err != nil {
@@ -72,7 +63,8 @@ func createProject(c *Context, w http.ResponseWriter, r *http.Request) {
 	main.DisplayName = project.Name + " - Main"
 	main.Name = project.Name + "-main"
 	main.Header = ""
-	main.Type = model.CHANNEL_PROJECT
+	main.Type = model.CHANNEL_SPECIAL
+
 	if ch, err := CreateChannel(c, main, true); err != nil {
 		l4g.Error(utils.T("api.project.createproject.error"), err)
 		c.Err = err
@@ -85,6 +77,17 @@ func createProject(c *Context, w http.ResponseWriter, r *http.Request) {
 		}
 	}
 
+	var user *model.User
+	if len(c.Session.UserId) > 0 {
+		uchan := Srv.Store.User().Get(c.Session.UserId)
+
+		if result := <-uchan; result.Err != nil {
+			c.Err = result.Err
+			return
+		} else {
+			user = result.Data.(*model.User)
+		}
+	}
 	if user != nil {
 		err := JoinUserToProject(project, user)
 		if err != nil {
@@ -134,7 +137,7 @@ func JoinUserToProjectById(projectId string, user *model.User) *model.AppError {
 
 func JoinUserToProject(project *model.Project, user *model.User) *model.AppError {
 
-	tm := &model.ProjectMember{ProjectId: project.Id, UserId: user.Id}
+	tm := &model.ProjectMember{ProjectId: project.Id, UserId: user.Id, NotifyProps: model.GetDefaultProjectNotifyProps()}
 
 	//channelRole := ""
 	//if project.Email == user.Email {
@@ -260,6 +263,20 @@ func GetAllProjectListings(c *Context, w http.ResponseWriter, r *http.Request) {
 		}
 
 		w.Write([]byte(model.ProjectMapToJson(m)))
+	}
+}
+
+func getProjectsChannels(c *Context, w http.ResponseWriter, r *http.Request) {
+	if result := <-Srv.Store.Project().GetProjectsChannels(c.TeamId); result.Err != nil {
+		c.Err = result.Err
+		l4g.Error(utils.T("api.projects.get_projects_channels.error"), c.Session.UserId)
+		return
+	} else if HandleEtag(result.Data.(*model.ProjectsChannels).Etag(), w, r) {
+		return
+	} else {
+		data := result.Data.(*model.ProjectsChannels)
+		w.Header().Set(model.HEADER_ETAG_SERVER, data.Etag())
+		w.Write([]byte(data.ToJson()))
 	}
 }
 
@@ -695,7 +712,7 @@ func PermanentDeleteProject(c *Context, project *model.Project) *model.AppError 
 	return nil
 }
 
-func getMyProject(c *Context, w http.ResponseWriter, r *http.Request) {
+func getProject(c *Context, w http.ResponseWriter, r *http.Request) {
 
 	params := mux.Vars(r)
 	projectId := params["project_id"]
@@ -704,15 +721,25 @@ func getMyProject(c *Context, w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if result := <-Srv.Store.Project().Get(projectId); result.Err != nil {
+	pchan := Srv.Store.Project().Get(projectId)
+	pmchan := Srv.Store.Project().GetMember(projectId, c.Session.UserId)
+
+	if result := <-pchan; result.Err != nil {
 		c.Err = result.Err
 		return
-	} else if HandleEtag(result.Data.(*model.Project).Etag(), w, r) {
+	} else if pmresult := <-pmchan; pmresult.Err != nil {
+		c.Err = pmresult.Err
 		return
 	} else {
-		w.Header().Set(model.HEADER_ETAG_SERVER, result.Data.(*model.Project).Etag())
-		w.Write([]byte(result.Data.(*model.Project).ToJson()))
-		return
+		data := &model.ProjectData{}
+		data.Project = result.Data.(*model.Project)
+		member := pmresult.Data.(model.ProjectMember)
+		data.Member = &member
+
+		if !HandleEtag(data.Etag(), w, r) {
+			w.Header().Set(model.HEADER_ETAG_SERVER, data.Etag())
+			w.Write([]byte(data.ToJson()))
+		}
 	}
 }
 

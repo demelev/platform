@@ -4,6 +4,7 @@
 import * as Utils from 'utils/utils.jsx';
 import Client from 'client/web_client.jsx';
 import UserStore from 'stores/user_store.jsx';
+import TeamStore from 'stores/team_store.jsx';
 
 import NewChannelModal from './new_channel_modal.jsx';
 import ChangeURLModal from './change_url_modal.jsx';
@@ -134,7 +135,8 @@ class NewChannelFlow extends React.Component {
         );
 
         const project = {
-            team_id: cu.team_id,
+            team_id: TeamStore.getCurrentId(),
+            creator_id: cu.id,
             name: this.state.channelName,
             display_name: this.state.channelDisplayName,
             header: this.state.channelHeader,
@@ -149,7 +151,8 @@ class NewChannelFlow extends React.Component {
                     (data2) => {
                         AppDispatcher.handleServerAction({
                             type: ActionTypes.RECEIVED_PROJECT,
-                            project: data2.project
+                            project: data2.project,
+                            member : data2.member
                         });
 
                         this.props.onModalDismissed();

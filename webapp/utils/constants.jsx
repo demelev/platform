@@ -68,6 +68,7 @@ export const ActionTypes = keyMirror({
     CLICK_PROJECT: null,
     CREATE_PROJECT: null,
     LEAVE_PROJECT: null,
+    RECEIVED_PROJECTS_CHANNELS: null,
     RECEIVED_PROJECTS: null,
     RECEIVED_PROJECT: null,
     RECEIVED_MORE_PROJECTS: null,

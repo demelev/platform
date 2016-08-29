@@ -12,8 +12,9 @@ import (
 )
 
 const (
-	MISSING_PROJECT_ERROR = "store.sql_project.get_by_name.missing.app_error"
-	PROJECT_EXISTS_ERROR  = "store.sql_project.save_project.exists.app_error"
+	MISSING_PROJECT_ERROR        = "store.sql_project.get_by_name.missing.app_error"
+	MISSING_PROJECT_MEMBER_ERROR = "store.sql_project.getmember.missing.app_error"
+	PROJECT_EXISTS_ERROR         = "store.sql_project.save_project.exists.app_error"
 )
 
 type SqlProjectStore struct {
@@ -43,6 +44,7 @@ func NewSqlProjectStore(sqlStore *SqlStore) ProjectStore {
 		tablec := db.AddTableWithName(model.ProjectChannel{}, "ProjectChannels").SetKeys(false, "ProjectId", "ChannelId")
 		tablec.ColMap("ProjectId").SetMaxSize(26)
 		tablec.ColMap("ChannelId").SetMaxSize(26)
+		tablec.ColMap("ChannelType").SetMaxSize(26)
 	}
 
 	return s
@@ -51,6 +53,9 @@ func NewSqlProjectStore(sqlStore *SqlStore) ProjectStore {
 func (s SqlProjectStore) UpgradeSchemaIfNeeded() {
 	s.RemoveColumnIfExists("Projects", "Purpose")
 	s.RemoveColumnIfExists("Projects", "TotalMsgCount")
+
+	s.CreateColumnIfNotExists("ProjectMembers", "DeleteAt", "bigint(20)", "bigint", "0")
+	//s.CreateColumnIfNotExists("ProjectChannels", "ChannelType", "string", "string", "")
 }
 
 func (s SqlProjectStore) CreateIndexesIfNotExists() {
@@ -289,6 +294,46 @@ func (s SqlProjectStore) PermanentDeleteByProject(projectId string) StoreChannel
 type projectWithMember struct {
 	model.Project
 	model.ProjectMember
+}
+
+type ProjectWithChannels struct {
+	model.Project
+	model.ProjectChannel
+}
+
+func (s SqlProjectStore) GetProjectsChannels(teamId string) StoreChannel {
+	storeChannel := make(StoreChannel)
+	go func() {
+		result := StoreResult{}
+		var data []*ProjectWithChannels
+		_, err := s.GetReplica().Select(&data, "SELECT * FROM Projects, ProjectChannels WHERE Projects.TeamId = :TeamId AND Projects.Id = ProjectChannels.ProjectId", map[string]interface{}{"TeamId": teamId})
+
+		if err != nil {
+			result.Err = model.NewLocAppError("SqlProjectStore.GetProjectsChannels", "store.sql_project.get_projects.get.app_error", nil, "teamId="+teamId+", err="+err.Error())
+		} else {
+			channels := &model.ProjectsChannels{make(map[string][]string), 0}
+
+			for i := range data {
+				v := data[i]
+				if channels.LastUpdateAt < v.Project.UpdateAt {
+					channels.LastUpdateAt = v.Project.UpdateAt
+				}
+
+				if array := channels.ChannelsId[v.Project.Id]; array == nil {
+					channels.ChannelsId[v.Project.Id] = []string{v.ProjectChannel.ChannelId}
+				} else {
+					channels.ChannelsId[v.Project.Id] = append(array, v.ProjectChannel.ChannelId)
+				}
+			}
+
+			result.Data = channels
+		}
+
+		storeChannel <- result
+		close(storeChannel)
+	}()
+
+	return storeChannel
 }
 
 func (s SqlProjectStore) GetProjects(teamId string, userId string) StoreChannel {
@@ -563,19 +608,17 @@ func (s SqlProjectStore) GetMember(projectId string, userId string) StoreChannel
 	go func() {
 		result := StoreResult{}
 
-		//var member model.ProjectMember
+		var member model.ProjectMember
 
-		/*
-		 *if err := s.GetReplica().SelectOne(&member, "SELECT * FROM ProjectMembers WHERE ProjectId = :ProjectId AND UserId = :UserId", map[string]interface{}{"ProjectId": projectId, "UserId": userId}); err != nil {
-		 *    if err == sql.ErrNoRows {
-		 *        result.Err = model.NewLocAppError("SqlProjectStore.GetMember", MISSING_project_MEMBER_ERROR, nil, "project_id="+projectId+"user_id="+userId+","+err.Error())
-		 *    } else {
-		 *        result.Err = model.NewLocAppError("SqlProjectStore.GetMember", "store.sql_project.get_member.app_error", nil, "project_id="+projectId+"user_id="+userId+","+err.Error())
-		 *    }
-		 *} else {
-		 *    result.Data = member
-		 *}
-		 */
+		if err := s.GetReplica().SelectOne(&member, "SELECT * FROM ProjectMembers WHERE ProjectId = :ProjectId AND UserId = :UserId", map[string]interface{}{"ProjectId": projectId, "UserId": userId}); err != nil {
+			if err == sql.ErrNoRows {
+				result.Err = model.NewLocAppError("SqlProjectStore.GetMember", MISSING_PROJECT_MEMBER_ERROR, nil, "project_id="+projectId+"user_id="+userId+","+err.Error())
+			} else {
+				result.Err = model.NewLocAppError("SqlProjectStore.GetMember", "store.sql_project.get_member.app_error", nil, "project_id="+projectId+"user_id="+userId+","+err.Error())
+			}
+		} else {
+			result.Data = member
+		}
 
 		storeProject <- result
 		close(storeProject)

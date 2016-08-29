@@ -11,7 +11,7 @@ import (
 
 const (
 	CHANNEL_OPEN    = "O"
-	CHANNEL_PROJECT = "PR"
+	CHANNEL_SPECIAL = "S"
 	CHANNEL_PRIVATE = "P"
 	CHANNEL_DIRECT  = "D"
 	DEFAULT_CHANNEL = "town-square"
@@ -88,7 +88,7 @@ func (o *Channel) IsValid() *AppError {
 		return NewLocAppError("Channel.IsValid", "model.channel.is_valid.2_or_more.app_error", nil, "id="+o.Id)
 	}
 
-	if !(o.Type == CHANNEL_OPEN || o.Type == CHANNEL_PRIVATE || o.Type == CHANNEL_DIRECT) {
+	if !(o.Type == CHANNEL_OPEN || o.Type == CHANNEL_PRIVATE || o.Type == CHANNEL_DIRECT || o.Type == CHANNEL_SPECIAL) {
 		return NewLocAppError("Channel.IsValid", "model.channel.is_valid.type.app_error", nil, "id="+o.Id)
 	}
 

@@ -53,6 +53,7 @@ class ProjectStoreClass extends EventEmitter {
         this.postMode = this.POST_MODE_PROJECT;
         this.projects = [];
         this.projectMembers = {};
+        this.projectChannels = {};
         this.moreProjects = {};
         this.moreProjects.loading = true;
         this.extraInfos = {};
@@ -289,8 +290,25 @@ class ProjectStoreClass extends EventEmitter {
         this.projectMembers = projectMembers;
     }
 
+    storeProjectChannels(projectChannels) {
+        this.projectChannels = projectChannels;
+    }
+
     getProjectMembers() {
         return this.projectMembers;
+    }
+
+    getProjectsChannels() {
+        return this.projectChannels;
+    }
+
+    getProjectChannels(id) {
+        return this.projectChannels[id];
+    }
+
+    getCurrentChannels() {
+        var id = this.getCurrentId();
+        return this.getProjectChannels(id);
     }
 
     storeMoreProjects(projects) {
@@ -371,8 +389,12 @@ ProjectStore.dispatchToken = AppDispatcher.register((payload) => {
     switch (action.type) {
     case ActionTypes.CLICK_PROJECT:
         ProjectStore.setCurrentId(action.id);
-        var channel = ChannelStore.getByName(action.name);
-        ChannelStore.setCurrentId(channel.id);
+        var channels_id = ProjectStore.getCurrentChannels();
+
+        if (channels_id) {
+            ChannelStore.setCurrentId(channels_id[0]);
+        }
+
         ProjectStore.emitChange();
         ChannelStore.emitChange();
         break;
@@ -385,7 +407,13 @@ ProjectStore.dispatchToken = AppDispatcher.register((payload) => {
             //ProjectStore.resetCounts(currentId);
         //}
         //ProjectStore.setUnreadCounts();
-        //ProjectStore.emitChange();
+        ProjectStore.emitChange();
+        break;
+
+    case ActionTypes.RECEIVED_PROJECTS_CHANNELS:
+        console.log("CHannels id is     : " + JSON.stringify(action));
+        ProjectStore.storeProjectChannels(action.channels_id);
+        ProjectStore.emitChange();
         break;
 
     case ActionTypes.RECEIVED_PROJECT:

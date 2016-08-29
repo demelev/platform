@@ -79,6 +79,10 @@ export default class Client {
         return `${this.url}${this.urlVersion}/teams/${this.getTeamId()}/projects`;
     }
 
+    getProjectNeededRoute(projectId) {
+        return `${this.url}${this.urlVersion}/teams/${this.getTeamId()}/projects/${projectId}`;
+    }
+
     getChannelsRoute() {
         return `${this.url}${this.urlVersion}/teams/${this.getTeamId()}/channels`;
     }
@@ -1189,6 +1193,27 @@ export default class Client {
             type('application/json').
             accept('application/json').
             end(this.handleResponse.bind(this, 'getProjects', success, error));
+    }
+
+    getProject(ProjectId, success, error) {
+        request.
+            get(`${this.getProjectNeededRoute(ProjectId)}/`).
+            set(this.defaultHeaders).
+            type('application/json').
+            accept('application/json').
+            end(this.handleResponse.bind(this, 'getProject', success, error));
+
+        this.track('api', 'api_project_get');
+    }
+    
+    getProjectsChannels(success, error) {
+        request.
+            get(`${this.getProjectsRoute()}/channels`).
+            set(this.defaultHeaders).
+            type('application/json').
+            accept('application/json').
+            end(this.handleResponse.bind(this, 'getProjectsChannels', success, error));
+        this.track('api', 'api_project_channels_get');
     }
 
     getChannels(success, error) {

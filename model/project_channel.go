@@ -9,9 +9,9 @@ import (
 )
 
 type ProjectChannel struct {
-	ChannelId string `json:"channel_id"`
-	ProjectId string `json:"project_id"`
-	Type      string `json:"type"`
+	ChannelId   string `json:"channel_id"`
+	ProjectId   string `json:"project_id"`
+	ChannelType string `json:"channel_type"`
 }
 
 func (o *ProjectChannel) ToJson() string {

@@ -126,6 +126,20 @@ function preNeedsTeam(nextState, replace, callback) {
         }
     );
 
+    //TODO: maybe we need d4 here?
+    Client.getProjectsChannels(
+        (data) => {
+            console.log("Channels: " + JSON.stringify(data));
+            AppDispatcher.handleServerAction({
+                type: ActionTypes.RECEIVED_PROJECTS_CHANNELS,
+                channels_id: data.channels_id
+            });
+        },
+        (err) => {
+            AsyncClient.dispatchError(err, 'getProjectsChannels');
+        }
+    );
+
     Client.getProfiles(
         (data) => {
             AppDispatcher.handleServerAction({
