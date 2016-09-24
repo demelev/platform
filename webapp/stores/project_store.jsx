@@ -4,11 +4,14 @@
 import AppDispatcher from '../dispatcher/app_dispatcher.jsx';
 import EventEmitter from 'events';
 import ChannelStore from 'stores/channel_store.jsx';
+import Client from 'client/web_client.jsx';
+import * as AsyncClient from 'utils/async_client.jsx';
 
 var Utils;
 import Constants from 'utils/constants.jsx';
 const ActionTypes = Constants.ActionTypes;
-const NotificationPrefs = Constants.NotificationPrefs;
+
+//const NotificationPrefs = Constants.NotificationPrefs;
 
 const CHANGE_EVENT = 'change';
 const LEAVE_EVENT = 'leave';
@@ -292,6 +295,7 @@ class ProjectStoreClass extends EventEmitter {
 
     storeProjectChannels(projectChannels) {
         this.projectChannels = projectChannels;
+        Client.logClientError("ProjectChannels store : " + JSON.stringify(projectChannels));
     }
 
     getProjectMembers() {
@@ -389,20 +393,25 @@ ProjectStore.dispatchToken = AppDispatcher.register((payload) => {
     switch (action.type) {
     case ActionTypes.CLICK_PROJECT:
         ProjectStore.setCurrentId(action.id);
-        var channels_id = ProjectStore.getCurrentChannels();
+        var channelsId = ProjectStore.getCurrentChannels();
 
-        if (channels_id) {
-            ChannelStore.setCurrentId(channels_id[0]);
+        if (channelsId == null) {
+            Client.logClientError('ProjectStore: CLICK_PROJECT: There is no channelsId');
+        } else {
+            ChannelStore.setCurrentId(channelsId[0]);
+            AsyncClient.getChannelExtraInfo(channelsId[0]);
+            ChannelStore.emitChange();
         }
 
         ProjectStore.emitChange();
-        ChannelStore.emitChange();
+
         break;
 
     case ActionTypes.RECEIVED_PROJECTS:
         ProjectStore.storeProjects(action.projects);
         ProjectStore.storeProjectMembers(action.members);
         currentId = ProjectStore.getCurrentId();
+
         //if (currentId && window.isActive) {
             //ProjectStore.resetCounts(currentId);
         //}
@@ -411,7 +420,7 @@ ProjectStore.dispatchToken = AppDispatcher.register((payload) => {
         break;
 
     case ActionTypes.RECEIVED_PROJECTS_CHANNELS:
-        console.log("CHannels id is     : " + JSON.stringify(action));
+        Client.logClientError('>>> Channels id is : ' + JSON.stringify(action));
         ProjectStore.storeProjectChannels(action.channels_id);
         ProjectStore.emitChange();
         break;

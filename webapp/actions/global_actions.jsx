@@ -72,8 +72,8 @@ export function emitChannelClickEvent(channel) {
 }
 
 export function emitProjectClickEvent(project) {
-    function switchToProject(project) {
-        //AsyncClient.getProjects(true);
+    function switchToProject(p) {
+        AsyncClient.getProjects(true);
         //AsyncClient.getChannels(true);
         //AsyncClient.getChannelExtraInfo(proj.channel.id);
         //AsyncClient.getProjectExtraInfo(proj.id);
@@ -81,8 +81,8 @@ export function emitProjectClickEvent(project) {
 
         AppDispatcher.handleViewAction({
             type: ActionTypes.CLICK_PROJECT,
-            name: project.name,
-            id: project.id,
+            name: p.name,
+            id: p.id,
             prev: ProjectStore.getCurrentId()
         });
     }

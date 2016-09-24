@@ -92,17 +92,17 @@ export default class Sidebar extends React.Component {
     }
 
     getStateFromStores() {
-        const members          = ChannelStore.getAllMembers();
+        const members = ChannelStore.getAllMembers();
         const currentChannelId = ChannelStore.getCurrentId();
         const currentProjectId = ProjectStore.getCurrentId();
-        const currentUserId    = UserStore.getCurrentId();
+        const currentUserId = UserStore.getCurrentId();
 
         const channels = Object.assign([], ChannelStore.getAll());
         channels.sort(this.sortChannelsByDisplayName);
 
         const publicChannels = channels.filter((channel) => channel.type === Constants.OPEN_CHANNEL);
         const privateChannels = channels.filter((channel) => channel.type === Constants.PRIVATE_CHANNEL);
-        const projectsList    = ProjectStore.getAll();
+        const projectsList = ProjectStore.getAll();
 
         const preferences = PreferenceStore.getCategory(Constants.Preferences.CATEGORY_DIRECT_CHANNEL_SHOW);
 
@@ -601,20 +601,23 @@ export default class Sidebar extends React.Component {
     }
     createProjectElement(project, index, arr, handleClose) {
         //TODO: implement it
-        const members = this.state.members;
+        //const members = this.state.members;
         const activeId = this.state.activeProjectId;
+
         //const unreadCount = this.state.unreadCounts[channel.id] || {msgs: 0, mentions: 0};
         //let msgCount;
 
         let linkClass = '';
-        console.log("Active id is " + this.state.activeProjectId);
+
+        //console.log('Active id is ' + this.state.activeProjectId);
         if (project.id === activeId) {
             linkClass = 'active';
         }
 
         let rowClass = 'sidebar-channel';
 
-        var unread = false;
+        //var unread = false;
+
         //if (channelMember) {
             //msgCount = unreadCount.msgs + unreadCount.mentions;
             //unread = msgCount > 0 || channelMember.mention_count > 0;
@@ -632,6 +635,7 @@ export default class Sidebar extends React.Component {
         //}
 
         var badge = null;
+
         //if (channelMember) {
             //if (unreadCount.mentions) {
                 //badge = <span className='badge pull-right small'>{unreadCount.mentions}</span>;
@@ -651,6 +655,7 @@ export default class Sidebar extends React.Component {
         //}
 
         var icon = null;
+
         //if (channel.type === 'O') {
             //icon = <div className='status'><i className='fa fa-globe'></i></div>;
         //} else if (channel.type === 'P') {
@@ -677,7 +682,7 @@ export default class Sidebar extends React.Component {
                     overlay={removeTooltip}
                 >
                     <span
-                        onClick={(e) => handleClose(e, channel)}
+                        onClick={(e) => handleClose(e, project)}
                         className='btn-close'
                     >
                         {'×'}
@@ -689,6 +694,7 @@ export default class Sidebar extends React.Component {
         }
 
         let tutorialTip = null;
+
         //if (this.state.showTutorialTip && channel.name === Constants.DEFAULT_CHANNEL) {
             //tutorialTip = this.createTutorialTip();
             //this.openLeftSidebar();
@@ -696,6 +702,7 @@ export default class Sidebar extends React.Component {
 
         let link = '';
         link = '/' + this.state.currentTeam.name + '/projects/' + project.name;
+
         //if (channel.fake) {
             //link = '/' + this.state.currentTeam.name + '/channels/' + channel.name + '?fakechannel=' + encodeURIComponent(JSON.stringify(channel));
         //} else {
@@ -736,6 +743,7 @@ export default class Sidebar extends React.Component {
 
         // create elements for all 3 types of channels
         const publicChannelItems = this.state.publicChannels.map(this.createChannelElement);
+
         //const projectChannelItems = publicChannelItems;
         const projectItems = this.state.projectsList.map(this.createProjectElement);
 

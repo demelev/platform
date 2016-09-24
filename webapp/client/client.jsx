@@ -1205,7 +1205,7 @@ export default class Client {
 
         this.track('api', 'api_project_get');
     }
-    
+
     getProjectsChannels(success, error) {
         request.
             get(`${this.getProjectsRoute()}/channels`).

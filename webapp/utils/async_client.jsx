@@ -313,28 +313,6 @@ export function getProfilesForDirectMessageList() {
     );
 }
 
-export function getProjects() {
-    if (isCallInProgress('getProjects')) {
-        return;
-    }
-
-    callTracker.getProjects = utils.getTimestamp();
-    Client.getProjects(
-        (data) => {
-            callTracker.getProjects = 0;
-
-            AppDispatcher.handleServerAction({
-                type: ActionTypes.RECEIVED_PROJECTS,
-                profiles: data
-            });
-        },
-        (err) => {
-            callTracker.getProjects = 0;
-            dispatchError(err, 'getProjects');
-        }
-    );
-}
-
 export function getProfiles() {
     if (isCallInProgress('getProfiles')) {
         return;

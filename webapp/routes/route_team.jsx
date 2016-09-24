@@ -60,9 +60,7 @@ function doChannelChange(state, replace, callback) {
 }
 
 function doProjectChange(state, replace, callback) {
-    let channel = ChannelStore.getByName(state.params.project);
-    let project = ProjectStore.getByName(state.params.project);
-    project.channel = channel;
+    const project = ProjectStore.getByName(state.params.project);
     GlobalActions.emitProjectClickEvent(project);
     callback();
 }
@@ -129,7 +127,7 @@ function preNeedsTeam(nextState, replace, callback) {
     //TODO: maybe we need d4 here?
     Client.getProjectsChannels(
         (data) => {
-            console.log("Channels: " + JSON.stringify(data));
+            //console.log("Channels: " + JSON.stringify(data));
             AppDispatcher.handleServerAction({
                 type: ActionTypes.RECEIVED_PROJECTS_CHANNELS,
                 channels_id: data.channels_id
@@ -156,6 +154,7 @@ function preNeedsTeam(nextState, replace, callback) {
     );
 
     $.when(d1, d2, d3).done(callback);
+
     //$.when(d1, d2, d3).done(() => {
         //callback();
     //});

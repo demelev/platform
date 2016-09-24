@@ -10,7 +10,8 @@ import CreatePost from 'components/create_post.jsx';
 import PostViewCache from 'components/post_view/post_view_cache.jsx';
 
 import ChannelStore from 'stores/channel_store.jsx';
-import ProjectStore from 'stores/project_store.jsx';
+
+//import ProjectStore from 'stores/project_store.jsx';
 
 import * as Utils from 'utils/utils.jsx';
 
@@ -24,19 +25,9 @@ export default class ChannelView extends React.Component {
 
         this.state = this.getStateFromStores(props);
     }
-    getStateFromStores(props) {
-        let channel = ChannelStore.getByName(props.params.channel);
-        if (!channel)
-        {
-            let proj = props.params.project;
-            if (proj)
-            {
-                //FIXME: hee
-                //channel = ProjectStore.getByName(proj);
-                channel = ChannelStore.getByName(proj);
-            }
-        }
 
+    getStateFromStores(props) {
+        const channel = ChannelStore.getByName(props.params.channel);
         const channelId = channel ? channel.id : '';
         return {
             channelId

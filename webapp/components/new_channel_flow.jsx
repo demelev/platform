@@ -152,7 +152,7 @@ class NewChannelFlow extends React.Component {
                         AppDispatcher.handleServerAction({
                             type: ActionTypes.RECEIVED_PROJECT,
                             project: data2.project,
-                            member : data2.member
+                            member: data2.member
                         });
 
                         this.props.onModalDismissed();

@@ -62,8 +62,7 @@ export default class ProjectHeader extends React.Component {
     getStateFromStores() {
         const extraInfo = ChannelStore.getExtraInfo(this.props.channelId);
 
-        var ch = ChannelStore.get(this.props.channelId);
-        console.log("Channel from header: " + JSON.stringify(this.props));
+        //var ch = ChannelStore.get(this.props.channelId);
         return {
             channel: ChannelStore.get(this.props.channelId),
             memberChannel: ChannelStore.getMember(this.props.channelId),

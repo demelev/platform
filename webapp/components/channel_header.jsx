@@ -18,6 +18,7 @@ import ToggleModalButton from './toggle_modal_button.jsx';
 import StatusIcon from './status_icon.jsx';
 
 import ChannelStore from 'stores/channel_store.jsx';
+
 import ProjectStore from 'stores/project_store.jsx';
 import UserStore from 'stores/user_store.jsx';
 import TeamStore from 'stores/team_store.jsx';
@@ -62,8 +63,7 @@ export default class ChannelHeader extends React.Component {
     getStateFromStores() {
         const extraInfo = ChannelStore.getExtraInfo(this.props.channelId);
 
-        var ch = ChannelStore.get(this.props.channelId);
-        console.log("Channel from header: " + JSON.stringify(this.props));
+        //var ch = ChannelStore.get(this.props.channelId);
         return {
             channel: ChannelStore.get(this.props.channelId),
             memberChannel: ChannelStore.getMember(this.props.channelId),
@@ -86,7 +86,6 @@ export default class ChannelHeader extends React.Component {
 
     componentDidMount() {
         ChannelStore.addChangeListener(this.onListenerChange);
-        ProjectStore.addChangeListener(this.onListenerChange);
         ChannelStore.addExtraInfoChangeListener(this.onListenerChange);
         SearchStore.addSearchChangeListener(this.onListenerChange);
         PreferenceStore.addChangeListener(this.onListenerChange);
@@ -98,7 +97,6 @@ export default class ChannelHeader extends React.Component {
 
     componentWillUnmount() {
         ChannelStore.removeChangeListener(this.onListenerChange);
-        ProjectStore.removeChangeListener(this.onListenerChange);
         ChannelStore.removeExtraInfoChangeListener(this.onListenerChange);
         SearchStore.removeSearchChangeListener(this.onListenerChange);
         PreferenceStore.removeChangeListener(this.onListenerChange);
@@ -537,6 +535,7 @@ export default class ChannelHeader extends React.Component {
                 id='channel-header'
                 className='channel-header'
             >
+                {channel.id}
                 <table className='channel-header alt'>
                     <tbody>
                         <tr>

@@ -4,11 +4,12 @@
 import $ from 'jquery';
 import React from 'react';
 
-import ProjectHeader from 'components/project_header.jsx';
-import ChannelHeader from 'components/project_header.jsx';
+//import ProjectHeader from 'components/project_header.jsx';
+import ChannelHeader from 'components/channel_header.jsx';
 import FileUploadOverlay from 'components/file_upload_overlay.jsx';
 import CreatePost from 'components/create_post.jsx';
 import PostViewCache from 'components/post_view/post_view_cache.jsx';
+import Client from 'client/web_client.jsx';
 
 import ChannelStore from 'stores/channel_store.jsx';
 import ProjectStore from 'stores/project_store.jsx';
@@ -25,9 +26,14 @@ export default class ProjectView extends React.Component {
 
         this.state = this.getStateFromStores(props);
     }
+
     getStateFromStores(props) {
         const project = ProjectStore.getByName(props.params.project);
-        const channel = ChannelStore.getByName(props.params.project);
+        const channels = ProjectStore.getProjectChannels(project.id);
+        var channel = null;
+
+        if (channels)
+            channel = ChannelStore.get(channels[0]); //TODO: implement it as it should be
 
         const channelId = channel ? channel.id : '';
         return {
@@ -54,10 +60,12 @@ export default class ProjectView extends React.Component {
         this.setState(this.getStateFromStores(nextProps));
     }
     shouldComponentUpdate(nextProps, nextState) {
+        //Client.logClientError('DEBUG: params compare ' + JSON.stringify(nextProps.params) + ' and ' + JSON.stringify(this.props.params));
         if (!Utils.areObjectsEqual(nextProps.params, this.props.params)) {
             return true;
         }
 
+        //Client.logClientError('DEBUG: channel id compare: ' + nextState.channelId + ' and ' + this.state.channelId);
         if (nextState.channelId !== this.state.channelId) {
             return true;
         }
@@ -71,6 +79,7 @@ export default class ProjectView extends React.Component {
                 className='app__content'
             >
                 <FileUploadOverlay overlayType='center'/>
+                {this.state.channelId}
                 <ChannelHeader
                     channelId={this.state.channelId}
                 />
