@@ -455,7 +455,12 @@ ProjectStore.dispatchToken = AppDispatcher.register((payload) => {
         ProjectStore.emitLeave(action.id);
         break;
 
-    default:
+    case ActionTypes.CLICK_CHANNEL:
+        ProjectStore.setCurrentId(null);
+        ProjectStore.emitChange();
+        break;
+
+    efault:
         break;
     }
 });

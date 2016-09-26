@@ -49,11 +49,9 @@ export default class PostViewCache extends React.Component {
         }
 
         const index = channels.map((c) => c.id).indexOf(currentChannel.id);
-        if (index !== -1) {
-            channels.splice(index, 1);
+        if (index === -1) {
+            channels.push(currentChannel);
         }
-
-        channels.push(currentChannel);
 
         this.setState({
             currentChannelId: currentChannel.id,

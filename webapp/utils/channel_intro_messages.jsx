@@ -28,7 +28,8 @@ export function createChannelIntroMessage(channel, fullWidthIntro) {
         return createDefaultIntroMessage(channel, centeredIntro);
     } else if (channel.name === Constants.OFFTOPIC_CHANNEL) {
         return createOffTopicIntroMessage(channel, centeredIntro);
-    } else if (channel.type === 'O' || channel.type === 'P') {
+    } else if (channel.type === 'O' || channel.type === 'P' || channel.type === 'S') {
+        console.log('Return standard intro message.');
         return createStandardIntroMessage(channel, centeredIntro);
     }
     return null;

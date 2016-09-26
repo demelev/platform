@@ -79,7 +79,6 @@ export default class ProjectView extends React.Component {
                 className='app__content'
             >
                 <FileUploadOverlay overlayType='center'/>
-                {this.state.channelId}
                 <ChannelHeader
                     channelId={this.state.channelId}
                 />

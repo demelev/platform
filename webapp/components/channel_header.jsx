@@ -535,7 +535,6 @@ export default class ChannelHeader extends React.Component {
                 id='channel-header'
                 className='channel-header'
             >
-                {channel.id}
                 <table className='channel-header alt'>
                     <tbody>
                         <tr>

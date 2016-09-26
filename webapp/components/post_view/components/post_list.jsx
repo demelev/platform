@@ -59,8 +59,10 @@ export default class PostList extends React.Component {
 
         if (props.channel) {
             this.introText = createChannelIntroMessage(props.channel, this.state.fullWidthIntro);
+            console.log('createChannelIntroMessage');
         } else {
             this.introText = this.getArchivesIntroMessage();
+            console.log('Get archives intro message');
         }
     }
 
